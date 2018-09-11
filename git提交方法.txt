@@ -1,0 +1,11 @@
+1、git init 
+2、git add .
+3、git commit -m 'dad'
+4、git remote add origin git@github.com:jushuihe/xitang.git
+5、git push -u origin master
+
+
+之后提交代码的方式是 
+	git add .
+	git commit -m ''
+	git push origin master
