@@ -4,8 +4,15 @@ import BaseGroup from '@/components/BaseGroup'
 import Home from '@/components/home/home'
 import GroupBuy from '@/components/groupBuy/group-buy'
 import Classification from '@/components/classification/classification'
-import PersonCenter from '@/components/personCenter/person-center'
 import ShoppingCard from '@/components/shoppingCard/shopping-card'
+import PersonCenter from '@/components/personCenter/person-center'
+import Coupon from '@/components/personCenter/childrenPage/coupon'
+import HelpCenter from '@/components/personCenter/childrenPage/helpCenter'
+import ShippingAddress from '@/components/personCenter/childrenPage/shippingAddress'
+import OrderList from '@/components/personCenter/childrenPage/orderList'
+import PersonMsg from '@/components/personCenter/childrenPage/person-msg'
+import ChangePassWord from '@/components/personCenter/childrenPage/change-pass-word'
+
 Vue.use(Router)
 
 export default new Router({
@@ -46,6 +53,36 @@ export default new Router({
           component: Home
         }
       ]
+    },
+    {
+      path: '/coupon',
+      name: 'Coupon',
+      component: Coupon
+    },
+    {
+      path: '/helpCenter',
+      name: 'HelpCenter',
+      component: HelpCenter
+    },
+    {
+      path: '/shippingAddress',
+      name: 'ShippingAddress',
+      component: ShippingAddress
+    },
+    {
+      path: '/orderList',
+      name: 'OrderList',
+      component: OrderList
+    },
+    {
+      path: '/personMsg',
+      name: 'personMsg',
+      component: PersonMsg
+    },
+    {
+      path: '/changePassWord',
+      name: 'changePassWord',
+      component: ChangePassWord
     }
   ]
 })
