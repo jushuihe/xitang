@@ -79,5 +79,18 @@ export default {
     color: $base-color;
   }
 }
-
+//  改变所有页面的头部
+.page{
+  .mint-header{
+    background:$base-color;
+    .mint-header-button{
+      width:20px;
+      height:20px;
+      flex: none;
+    }
+    .mint-header-title{
+      font-size:18px;
+    }
+  }
+}
 </style>

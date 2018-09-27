@@ -12,6 +12,7 @@ import ShippingAddress from '@/components/personCenter/childrenPage/shippingAddr
 import OrderList from '@/components/personCenter/childrenPage/orderList'
 import PersonMsg from '@/components/personCenter/childrenPage/person-msg'
 import ChangePassWord from '@/components/personCenter/childrenPage/change-pass-word'
+import GoodsDetail from '@/components/goodsDetail/goods-detail'
 
 Vue.use(Router)
 
@@ -83,6 +84,11 @@ export default new Router({
       path: '/changePassWord',
       name: 'changePassWord',
       component: ChangePassWord
+    },
+    {
+      path: '/goodsDetail/:goodsId',
+      name: 'goodsDetail',
+      component: GoodsDetail
     }
   ]
 })
