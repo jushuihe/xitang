@@ -1,5 +1,17 @@
 <template>
   <div class="home-page">
+    <header class='base-header'>
+        <div class='img-content'>
+            <img src="../../assets/img/saoyisao.png" class='img-item' alt="">
+        </div>
+        <div class='search-content'>
+            <img class='search-content-img' src='../../assets/img/search.png' alt=''>
+            <input type="text" class='search-content-input' placeholder="搜索...">
+        </div>
+        <div class='img-content'>
+            <img src="../../assets/img/zixun.png" class='img-item' alt="">
+        </div>
+    </header>
     <!-- 导航栏 -->
     <nav class='search-component'>
         <ul class='search-component-min-content'>
@@ -122,7 +134,7 @@ export default {
     // 跳转到商品详情页面
     toGoodDetail (item) {
       console.log(item)
-      this.$router.push({name: 'goodsDetail', param: {goodsId: item}})
+      this.$router.push({name: 'goodsDetail', params: {goodsId: item}})
     }
   },
   watch: {
@@ -136,6 +148,57 @@ export default {
 <style scoped lang='stylus'>
 @import './../../assets/css/base-style.styl'
 .home-page{
+  // 头部搜索部分
+  .base-header{
+    width:100%;
+    height 40px;
+    position:fixed;
+    top:0px;
+    background:$base-color;
+    box-sizing: border-box;
+    padding: 5px;
+    z-index:100;
+    >div{
+        display inline-block;
+        &.img-content{
+            width:30px;
+            height:30px;
+            position:absolute;
+            left:5px;
+            top:5px;
+            padding:3px;
+            box-sizing border-box
+            &:last-child{
+                right:5px;
+                left: auto;
+            }
+        }
+        &.search-content{
+            width:100%;
+            height:100%;
+            padding:0 33px;
+            box-sizing: border-box;
+            position relative
+            .search-content-img{
+                position:absolute
+                top: 8px;
+                left: 43px;
+                width: 14px;
+                height: 14px;
+            }
+            .search-content-input{
+                width:100%;
+                height:100%;
+                border: 0px;
+                border-radius 5px;
+                outline: none;
+                padding-left:30px;
+                background-color:#EDEDED;
+                box-sizing: border-box;
+            }
+        }
+    }
+  }
   // 导航栏部分
   .search-component{
       background:$base-color;

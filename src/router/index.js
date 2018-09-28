@@ -24,11 +24,6 @@ export default new Router({
       component: BaseGroup,
       children: [
         {
-          path: '',
-          name: 'Home',
-          component: Home
-        },
-        {
           path: 'groupBuy',
           name: 'GroupBuy',
           component: GroupBuy

@@ -1,9 +1,9 @@
 <template>
   <div class="page">
       <mt-header title="商品详情">
-          <router-link to="/base/home" slot="left">
+          <a @click='goBack' slot="left">
             <img class='img-item' src="./../../assets/img/back.png" alt="">
-          </router-link>
+          </a>
           <img slot="right" class='img-item' src="./../../assets/img/share.png" alt="">
       </mt-header>
       <h1>这是商品详情页 购买页面</h1>
@@ -12,7 +12,16 @@
 
 <script>
 export default {
-  name: 'coupon'
+  name: 'coupon',
+  data () {
+    return {}
+  },
+  created () {},
+  methods: {
+    goBack () {
+      this.$router.go(-1)
+    }
+  }
 }
 </script>
 
