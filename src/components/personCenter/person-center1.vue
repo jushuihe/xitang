@@ -9,25 +9,6 @@
             </div>
             <div class='user-name'>15337261725</div>
         </div>
-        <!-- 用户资产 -->
-        <!-- <div class='user-asset'>
-          <div class='user-asset-item'>
-            <p class='user-asset-item-value'>0.00</p>
-            <p class='user-asset-item-name'>余额</p>
-          </div>
-          <div class='user-asset-item'>
-            <p class='user-asset-item-value'>0</p>
-            <p class='user-asset-item-name'>积分</p>
-          </div>
-          <div class='user-asset-item'>
-            <p class='user-asset-item-value'>0</p>
-            <p class='user-asset-item-name'>卡</p>
-          </div>
-          <div class='user-asset-item'>
-            <p class='user-asset-item-value'>0</p>
-            <p class='user-asset-item-name'>券</p>
-          </div>
-        </div> -->
       </div>
       <!-- 用户的订单状况 -->
       <div class='order-content'>
@@ -36,48 +17,91 @@
         <div class='order-list'>
           <div class='order-list-item' @click='toOrderList'>
             <div class='order-list-item-icon'>
-              <i class='icon iconfont icon-daifukuan'></i>
+              <img class='img-item' src="./../../assets/img/person/dingdan1.png" alt="">
             </div>
             <p class='order-list-item-name'>待付款</p>
           </div>
           <div class='order-list-item' @click='toOrderList'>
             <div class='order-list-item-icon'>
-              <i class='icon iconfont icon-daifahuo'></i>
+              <img class='img-item' src="./../../assets/img/person/dingdan2.png" alt="">
             </div>
-            <p class='order-list-item-name'>待发货</p>
+            <p class='order-list-item-name'>待收货</p>
           </div>
           <div class='order-list-item' @click='toOrderList'>
             <div class='order-list-item-icon'>
-              <i class='icon iconfont icon-yifahuo'></i>
+              <img class='img-item' src="./../../assets/img/person/dingdan3.png" alt="">
             </div>
-            <p class='order-list-item-name'>已发货</p>
+            <p class='order-list-item-name'>已收货</p>
           </div>
           <div class='order-list-item' @click='toOrderList'>
             <div class='order-list-item-icon'>
-              <i class='icon iconfont icon-yiwancheng'></i>
+              <img class='img-item' src="./../../assets/img/person/dingdan4.png" alt="">
             </div>
-            <p class='order-list-item-name'>已完成</p>
+            <p class='order-list-item-name'>待评价</p>
+          </div>
+          <div class='order-list-item' @click='toOrderList'>
+            <div class='order-list-item-icon'>
+              <img class='img-item' src="./../../assets/img/person/dingdan4.png" alt="">
+            </div>
+            <p class='order-list-item-name'>售后</p>
           </div>
         </div>
       </div>
-      <!-- 用户中心的子页面 集中展示区 -->
-      <div class='cell-content'>
-        <mt-cell title="优惠券" class='user-defined-mt-cell'  icon="youhuiquan" to='/coupon' is-link>
-        </mt-cell>
-        <mt-cell title="购物车" class='user-defined-mt-cell' icon="shop" to='/base/ShoppingCard'  is-link>
-        </mt-cell>
-        <mt-cell title="返现" class='user-defined-mt-cell' icon="shaixuantubiaogaozhuanqu12" to='/shippingAddress'  is-link>
-        </mt-cell>
-        <mt-cell title="赠品" class='user-defined-mt-cell' icon="zengpin01" to='/shippingAddress'  is-link>
-        </mt-cell>
-        <mt-cell title="心愿单" class='user-defined-mt-cell' icon="xinyuan1" to='/shippingAddress'  is-link>
-        </mt-cell>
-        <mt-cell title="帮助中心" class='user-defined-mt-cell' icon="test" to='/helpCenter' is-link>
-        </mt-cell>
-      </div>
       <div class='gray-content'></div>
-      <mt-cell title="账号设置" style='padding-left:15px;text-align:left;' class='user-defined-mt-cell' icon="zhanghaoshezhi" to='/personMsg'  is-link>
-      </mt-cell>
+      <!-- 用户中心的子页面 集中展示区 -->
+      <div class='person-server'>
+          <h3 class='person-server-title'>我的服务</h3>
+          <div class='server-content'>
+              <dl>
+                  <dd>
+                      <img class='img-item' src="./../../assets/img/person/server1.png" alt="">
+                  </dd>
+                  <dt>拼团订单</dt>
+              </dl>
+              <dl>
+                  <dd>
+                      <img class='img-item' src="./../../assets/img/person/server2.png" alt="">
+                  </dd>
+                  <dt>我的业绩</dt>
+              </dl>
+              <dl>
+                  <dd>
+                      <img class='img-item' src="./../../assets/img/person/server3.png" alt="">
+                  </dd>
+                  <dt>地址管理</dt>
+              </dl>
+              <dl>
+                  <dd>
+                      <img class='img-item' src="./../../assets/img/person/server4.png" alt="">
+                  </dd>
+                  <dt>联系客服</dt>
+              </dl>
+              <dl>
+                  <dd>
+                      <img class='img-item' src="./../../assets/img/person/server5.png" alt="">
+                  </dd>
+                  <dt>交易明细</dt>
+              </dl>
+              <dl>
+                  <dd>
+                      <img class='img-item' src="./../../assets/img/person/server6.png" alt="">
+                  </dd>
+                  <dt>我的收藏</dt>
+              </dl>
+              <dl>
+                  <dd>
+                      <img class='img-item' src="./../../assets/img/person/server7.png" alt="">
+                  </dd>
+                  <dt>设置</dt>
+              </dl>
+              <dl>
+                  <dd>
+                      <img class='img-item' src="./../../assets/img/person/server8.png" alt="">
+                  </dd>
+                  <dt>礼包</dt>
+              </dl>
+          </div>
+      </div>
   </div>
 </template>
 
@@ -104,6 +128,7 @@ export default {
 </script>
 
 <style scoped lang='stylus'>
+@import './../../assets/css/base-style.styl'
 .person-center{
   margin-top:-40px;
   background:#fff;
@@ -203,6 +228,8 @@ export default {
         .order-list-item-icon{
           margin-bottom: 5px;
           font-size: 24px;
+          width:24px;
+          height:21px;
           color: #333;
           position: relative;
           .iconfont{
@@ -217,10 +244,37 @@ export default {
       }
     }
   }
-  .cell-content{
-    text-align:left;
-    margin-top:20px;
-    padding-left: 15px;
+  .person-server{
+    .person-server-title{
+        font-size:16px;
+        text-align left;
+        font-weight:500;
+        color:$base-undertint-font-color;
+        margin-left:1rem;
+        line-height 44px;
+        border-bottom:1px solid #ededed;
+    }
+    .server-content{
+        display:flex;
+        flex-wrap:wrap;
+        justify-content:space-between;
+        >dl{
+            width:25%;
+            padding-top:1.5rem;
+            padding-bottom 1.5rem;
+            border-bottom:1px solid #ededed;
+            >dd{
+                width:3rem;
+                height:3rem;
+                margin:0 auto;
+            }
+            >dt{
+                color:$base-undertint-font-color;
+                line-height:24px
+            }
+        }
+    }
   }
+
 }
 </style>

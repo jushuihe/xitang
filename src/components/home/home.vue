@@ -293,7 +293,7 @@ export default {
           }
           .classify-part-content-item-name{
             font-size: 14px;
-            color: #4a4a4a;
+            color: $base-undertint-font-color;
             text-align: left;
           }
           .classify-part-content-item-price{

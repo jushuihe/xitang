@@ -1,65 +1,88 @@
 <template>
-  <div class="order-list-page">
-    <mt-header title="订单列表">
-        <router-link to="/base/personCenter" slot="left">
-            <mt-button icon="back">返回</mt-button>
-        </router-link>
-        <mt-button icon="more" slot="right"></mt-button>
+  <div class="order-list-page page">
+    <mt-header title="我的订单">
+        <a @click='goBack' slot="left">
+        <img class='img-item' src="./../../../assets/img/back.png" alt="">
+        </a>
     </mt-header>
-    <h1>这是订单页面</h1>
+
     <mt-navbar class="page-part" :selected.sync="selected" v-model='selected'>
-        <mt-tab-item id="1">待付款</mt-tab-item>
-        <mt-tab-item id="2">待收货</mt-tab-item>
-        <mt-tab-item id="3">待点评</mt-tab-item>
-        <mt-tab-item id="4">全部</mt-tab-item>
+        <mt-tab-item id="1">全部订单</mt-tab-item>
+        <mt-tab-item id="2">待付款</mt-tab-item>
+        <mt-tab-item id="3">待收货</mt-tab-item>
+        <mt-tab-item id="4">已收货</mt-tab-item>
     </mt-navbar>
+
+    <div class='gray-content'></div>
 
     <!-- tab-container -->
     <mt-tab-container :active.sync="selected" v-model='selected'>
         <mt-tab-container-item id="1" class='allOrderList'>
-            <div class='hasNoOrder'>
-                <div>
-                    <h4>居然没有订单</h4>
-                    <p>好东西，手慢无</p>
-                </div>
-                <div>
-                    <button class='find-more' @click='toHome'>去逛逛</button>
-                </div>
-            </div>
-            <div class='orderList'>
-
-            </div>
+            <!-- 全部订单列表 -->
+            <all-order-list :orderList='orderList'></all-order-list>
         </mt-tab-container-item>
         <mt-tab-container-item id="2">
-            <h2>a</h2>
-            <mt-cell v-for="n in 4" :key='n' :title="'测试 ' + n"></mt-cell>
+            <!-- 代付款 -->
+            <await-payment :awaitPaymentOrderList='awaitPaymentOrderList'></await-payment>
         </mt-tab-container-item>
         <mt-tab-container-item id="3">
-            <h2>a</h2>
-            <mt-cell v-for="n in 6" :key='n' :title="'选项 ' + n"></mt-cell>
+            <!-- 待收货 -->
+            <await-take-goods :awaitTakeGoodsOrderList='awaitTakeGoodsOrderList'></await-take-goods>
         </mt-tab-container-item>
         <mt-tab-container-item id="4">
+            <!-- 已收货的订单 -->
+            <already-take-goods :alreadyTakeGoodsOrderList='alreadyTakeGoodsOrderList'></already-take-goods>
         </mt-tab-container-item>
     </mt-tab-container>
   </div>
 </template>
 
 <script>
+import allOrderList from './orderList/all-order-list'
+import awaitPayment from './orderList/await-payment'
+import awaitTakeGoods from './orderList/await-take-goods'
+import alreadyTakeGoods from './orderList/already-take-goods'
 export default {
   name: 'baseGroup',
   data () {
     return {
       selected: '1',
-      value: ''
+      value: '',
+      orderList: [
+        {goodsId: 1, orderType: 1, price: 12}
+      ]
     }
+  },
+  components: {
+    allOrderList,
+    awaitPayment,
+    awaitTakeGoods,
+    alreadyTakeGoods
   },
   created () {},
   methods: {
     toHome () {
       this.$router.push('/base/home')
+    },
+    goBack () {
+      this.$router.go(-1)
     }
   },
-  watch: {}
+  watch: {},
+  computed: {
+    // 等待付款的订单列表
+    awaitPaymentOrderList () {
+      return this.orderList.filter(item => item.orderType === 2)
+    },
+    // 等待收货的订单列表
+    awaitTakeGoodsOrderList () {
+      return this.orderList.filter(item => item.orderType === 3)
+    },
+    // 已经收货的订单列表
+    alreadyTakeGoodsOrderList () {
+      return this.orderList.filter(item => item.orderType === 4)
+    }
+  }
 }
 </script>
 

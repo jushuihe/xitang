@@ -27,7 +27,7 @@
       </div>
     </div>
     <div class='goods-list' v-if='goodsList.length > 0'>
-      <goods-list :goodsList='goodsList' @changeTheSelectedState='changeTheSelectedState' @reduceTheGoods='reduceTheGoods' @addTheGoods='addTheGoods'></goods-list>
+      <goods-list :goodsList='goodsList' :showDeleteBtn='showDeleteBtn' @deleteTheGoods='deleteTheGoods' @changeTheSelectedState='changeTheSelectedState' @reduceTheGoods='reduceTheGoods' @addTheGoods='addTheGoods'></goods-list>
       <!-- 全选和结算的部分 -->
       <div class='selectAll'>
         <button class='select-all-btn' @click='changeTheAllSelectedState'>
@@ -56,7 +56,9 @@ export default {
         {goodsId: 1, goodsName: '商品1', goodsPrice: '666', goodsImg: './../../../assets/img/goods/3.png', num: 1, selected: false},
         {goodsId: 2, goodsName: '商品2', goodsPrice: '888', goodsImg: './../../../assets/img/goods/4.png', num: 2, selected: false}
       ],
-      isSelectAll: false
+      isSelectAll: false,
+      // 点击编辑按钮的时候显示或隐藏删除按钮
+      showDeleteBtn: false
     }
   },
   components: {
@@ -66,7 +68,7 @@ export default {
   methods: {
     editorShopCard () {
       console.log('编辑购物车')
-      this.Toast('编辑')
+      this.showDeleteBtn = !this.showDeleteBtn
     },
     toHome () {
       this.$router.push({name: 'Home'})
@@ -78,19 +80,19 @@ export default {
       this.Toast('结算')
     },
     changeTheSelectedState (index) {
-      let obj = this.goodsList[index];
-      obj.selected = !obj.selected;
-      this.goodsList.splice(index, 1, obj);
+      let obj = this.goodsList[index]
+      obj.selected = !obj.selected
+      this.goodsList.splice(index, 1, obj)
       if (this.goodsList.some(item => {
         if (!item.selected) return true
       })) {
-        this.isSelectAll = false;
+        this.isSelectAll = false
       } else {
-        this.isSelectAll = true;
+        this.isSelectAll = true
       }
     },
     changeTheAllSelectedState () {
-      this.isSelectAll = !this.isSelectAll;
+      this.isSelectAll = !this.isSelectAll
       if (this.isSelectAll) {
         this.goodsList.forEach((item, index) => {
           item.selected = true
@@ -105,21 +107,30 @@ export default {
     },
     // 减少数量
     reduceTheGoods (index) {
-      let obj = this.goodsList[index];
+      let obj = this.goodsList[index]
       if (obj.num > 1) {
         obj.num--
       }
-      this.goodsList.splice(index, 1, obj);
+      this.goodsList.splice(index, 1, obj)
     },
     // 增加数量
     addTheGoods (index) {
-      let obj = this.goodsList[index];
+      let obj = this.goodsList[index]
       if (obj.num) {
         obj.num++
       } else {
         obj.num = 1
       }
-      this.goodsList.splice(index, 1, obj);
+      this.goodsList.splice(index, 1, obj)
+    },
+    // 删除当前商品
+    deleteTheGoods (index) {
+      this.MessageBox.confirm('确定执行此操作?').then(action => {
+        this.goodsList.splice(index, 1)
+      }).catch(data => {
+        console.log(2)
+      })
+      console.log('删除')
     }
 
   },
@@ -127,13 +138,12 @@ export default {
   },
   computed: {
     totalPrice () {
-      let total = 0;
+      let total = 0
       this.goodsList.forEach(item => {
-        if (item.selected)
-        total += (Number(item.goodsPrice) * Number(item.num))
+        if (item.selected) total += (Number(item.goodsPrice) * Number(item.num))
       })
       total = parseFloat(total).toFixed(2)
-      return total;
+      return total
     }
   }
 }
@@ -205,7 +215,7 @@ export default {
         >dd{
           font-size: 12px;
           line-height 16px;
-          color: #4a4a4a;
+          color: $base-undertint-font-color;
           text-align: left;
           margin-top:6px;
           &.recommend-goods-list-item-name{
@@ -228,7 +238,7 @@ export default {
       height:50px;
       bottom:58px;
       background:#fff;
-      color:#4a4a4a;
+      color:$base-undertint-font-color;
       line-height:50px;
       text-align:right;
       .select-all-btn{

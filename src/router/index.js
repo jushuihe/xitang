@@ -5,7 +5,8 @@ import Home from '@/components/home/home'
 import GroupBuy from '@/components/groupBuy/group-buy'
 import Classification from '@/components/classification/classification'
 import ShoppingCard from '@/components/shoppingCard/shopping-card'
-import PersonCenter from '@/components/personCenter/person-center'
+import PersonCenter from '@/components/personCenter/person-center1'
+import PersonCenter1 from '@/components/personCenter/person-center'
 import Coupon from '@/components/personCenter/childrenPage/coupon'
 import HelpCenter from '@/components/personCenter/childrenPage/helpCenter'
 import ShippingAddress from '@/components/personCenter/childrenPage/shippingAddress'
@@ -37,6 +38,11 @@ export default new Router({
           path: 'PersonCenter',
           name: 'PersonCenter',
           component: PersonCenter
+        },
+        {
+          path: 'PersonCenter1',
+          name: 'PersonCenter1',
+          component: PersonCenter1
         },
         {
           path: 'ShoppingCard',

@@ -261,7 +261,7 @@ export default {
           >dd{
             font-size: 12px;
             line-height 16px;
-            color: #4a4a4a;
+            color: $base-undertint-font-color;
             text-align: left;
             margin-top:6px;
           }

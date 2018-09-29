@@ -16,11 +16,14 @@
                         <strong style='font-size:12px;'>￥</strong>{{item.goodsPrice}}
                     </div>
                     <div class='goods-num'>
-                        <button @click='reduceTheGoods(item, index)'>-</button>
+                        <button @click='reduceTheGoods(item, index)' :disabled='!(item.num>1)'>-</button>
                         <input readonly :value='item.num ? item.num : 1' type="text">
                         <button @click='addTheGoods(item, index)'>+</button>
                     </div>
                 </div>
+                <transition name='fade'>
+                    <mt-button v-if='showDeleteBtn' class='delete-btn' @click.native='deleteTheGoods(item)'  size="small" type="danger">删除</mt-button>
+                </transition>
             </div>
         </div>
     </div>
@@ -28,10 +31,11 @@
 
 <script>
 export default {
-  props: ['goodsList', 'isSelectAll'],
+  props: ['goodsList', 'isSelectAll', 'showDeleteBtn'],
   name: '',
   data () {
-    return {}
+    return {
+    }
   },
   created () {},
   methods: {
@@ -48,6 +52,9 @@ export default {
     toGoodDetail (item) {
       this.$router.push({name: 'goodsDetail', params: {goodsId: item.goodsId}})
     },
+    deleteTheGoods (item, index) {
+      this.$emit('deleteTheGoods', index)
+    }
   }
 }
 </script>
@@ -92,7 +99,7 @@ $numbtn-color=#979797;
             height: 6rem;
             vertical-align top;
             >h3{
-                color:#4A4A4A;
+                color:$base-undertint-font-color;
                 font-size:16px;
                 line-height 26px;
             }
@@ -135,6 +142,9 @@ $numbtn-color=#979797;
                         font-size: 20px;
                         vertical-align: top;
                         color:$numbtn-color;
+                        &:active{
+                            background:#ddd;
+                        }
                         &:first-child{
                             border-top-left-radius:3px
                             border-bottom-left-radius:3px
@@ -144,6 +154,26 @@ $numbtn-color=#979797;
                             border-bottom-right-radius:3px
                         }
                     }
+                }
+            }
+            .delete-btn{
+                position absolute;
+                top:10px;
+                right:1rem;
+            }
+            // 删除按钮的动画效果
+            .fade-enter-active {
+                animation: fade-in .5s;
+            }
+            @keyframes fade-in {
+                0% {
+                    transform: translateY(-5px);
+                }
+                50% {
+                    transform: translateY(5px);
+                }
+                100% {
+                    transform: translateY(0px);
                 }
             }
         }

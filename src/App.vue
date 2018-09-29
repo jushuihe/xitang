@@ -93,4 +93,7 @@ export default {
     }
   }
 }
+.mint-tabbar > .mint-tab-item.is-selected{
+  background:#fff;
+}
 </style>
