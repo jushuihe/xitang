@@ -9,3 +9,8 @@
 	git add .
 	git commit -m ''
 	git push origin master
+
+	项目服务器地址 
+	139.199.97.170
+	ubuntu xitang@123
+	根目录在 /home/ubuntu/app/mobile

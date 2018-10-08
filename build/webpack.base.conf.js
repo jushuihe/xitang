@@ -8,6 +8,11 @@ function resolve (dir) {
   return path.join(__dirname, '..', dir)
 }
 
+// 生成当前的时间戳
+function Timestamp () {
+  var time = new Date();
+  return time.getTime();
+}
 const createLintingRule = () => ({
   test: /\.(js|vue)$/,
   loader: 'eslint-loader',
@@ -56,7 +61,7 @@ module.exports = {
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: utils.assetsPath('img/[name].[hash:7].[ext]')
+          name: utils.assetsPath('img/[name].[hash:7].' + Timestamp() + '.[ext]')
         }
       },
       {
@@ -64,7 +69,7 @@ module.exports = {
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: utils.assetsPath('media/[name].[hash:7].[ext]')
+          name: utils.assetsPath('media/[name].[hash:7].' + Timestamp() + '.[ext]')
         }
       },
       {
@@ -72,7 +77,7 @@ module.exports = {
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
+          name: utils.assetsPath('fonts/[name].[hash:7].' + Timestamp() + '.[ext]')
         }
       }
     ]

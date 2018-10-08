@@ -5,6 +5,8 @@ import Home from '@/components/home/home'
 import GroupBuy from '@/components/groupBuy/group-buy'
 import Classification from '@/components/classification/classification'
 import ShoppingCard from '@/components/shoppingCard/shopping-card'
+// 这是单独的购物车页面
+import ShoppingCardSolely from '@/components/shoppingCard/solely-shopping-card'
 import PersonCenter from '@/components/personCenter/person-center1'
 import PersonCenter1 from '@/components/personCenter/person-center'
 import Coupon from '@/components/personCenter/childrenPage/coupon'
@@ -14,6 +16,11 @@ import OrderList from '@/components/personCenter/childrenPage/orderList'
 import PersonMsg from '@/components/personCenter/childrenPage/person-msg'
 import ChangePassWord from '@/components/personCenter/childrenPage/change-pass-word'
 import GoodsDetail from '@/components/goodsDetail/goods-detail'
+import OrderDetail from '@/components/personCenter/childrenPage/OrderDetail/order-detail'
+import LogisticsPage from '@/components/personCenter/childrenPage/logisticsPage/logistics-msg'
+import EvaluateGoods from '@/components/personCenter/childrenPage/evaluateGoods/evaluate-goods'
+import ApplicetionForMoney from '@/components/personCenter/childrenPage/afterSale/application-for-money'
+import SalesReturn from '@/components/personCenter/childrenPage/afterSale/sales-return'
 
 Vue.use(Router)
 
@@ -90,6 +97,36 @@ export default new Router({
       path: '/goodsDetail/:goodsId',
       name: 'goodsDetail',
       component: GoodsDetail
+    },
+    {
+      path: '/orderDetail/:goodsId',
+      name: 'OrderDetail',
+      component: OrderDetail
+    },
+    {
+      path: '/logisticsPage/:goodsId',
+      name: 'LogisticsPage',
+      component: LogisticsPage
+    },
+    {
+      path: '/evaluateGoods/:goodsId',
+      name: 'EvaluateGoods',
+      component: EvaluateGoods
+    },
+    {
+      path: '/applicetionForMoney/:goodsId',
+      name: 'ApplicetionForMoney',
+      component: ApplicetionForMoney
+    },
+    {
+      path: '/salesReturn/:goodsId',
+      name: 'SalesReturn',
+      component: SalesReturn
+    },
+    {
+      path: '/ShoppingCardSolely/',
+      name: 'ShoppingCardSolely',
+      component: ShoppingCardSolely
     }
   ]
 })

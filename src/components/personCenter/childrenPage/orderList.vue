@@ -48,8 +48,20 @@ export default {
     return {
       selected: '1',
       value: '',
+      // orderType=1 待付款 orderType=2 待收货 orderType=3 已收货 orderType=4 退款中
       orderList: [
-        {goodsId: 1, orderType: 1, price: 12}
+        {goodsId: 1, orderType: 1, price: 12},
+        {goodsId: 1, orderType: 1, price: 12},
+        {goodsId: 1, orderType: 1, price: 12},
+        {goodsId: 1, orderType: 2, price: 12},
+        {goodsId: 1, orderType: 2, price: 12},
+        {goodsId: 1, orderType: 2, price: 12},
+        {goodsId: 1, orderType: 3, price: 12},
+        {goodsId: 1, orderType: 3, price: 12},
+        {goodsId: 1, orderType: 4, price: 12},
+        {goodsId: 1, orderType: 4, price: 12},
+        {goodsId: 1, orderType: 4, price: 12},
+        {goodsId: 1, orderType: 4, price: 12}
       ]
     }
   },
@@ -72,15 +84,15 @@ export default {
   computed: {
     // 等待付款的订单列表
     awaitPaymentOrderList () {
-      return this.orderList.filter(item => item.orderType === 2)
+      return this.orderList.filter(item => item.orderType === 1)
     },
     // 等待收货的订单列表
     awaitTakeGoodsOrderList () {
-      return this.orderList.filter(item => item.orderType === 3)
+      return this.orderList.filter(item => item.orderType === 2)
     },
     // 已经收货的订单列表
     alreadyTakeGoodsOrderList () {
-      return this.orderList.filter(item => item.orderType === 4)
+      return this.orderList.filter(item => item.orderType === 3)
     }
   }
 }

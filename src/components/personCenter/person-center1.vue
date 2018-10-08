@@ -137,7 +137,8 @@ export default {
       padding: 0 15px;
       height: 150px;
       background-size: cover;
-      background:#eee;
+      background:url('./../../assets/img/person/bg.png') no-repeat center;
+      background-size:100% 100%;
       .user-info__avatar{
         width: 60px;
         height: 60px;

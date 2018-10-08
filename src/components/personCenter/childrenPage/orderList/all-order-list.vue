@@ -11,13 +11,13 @@
         </div>
         <div class='orderList'  v-if='orderList.length>0'>
             <div class='orderListContent'>
-                <div class='order-list-content-item'>
+                <div class='order-list-content-item' v-for='item in orderList' :key='item.goodsId'>
                     <h4 class='order-list-content-item-header'>订单编号：
                         <span>201803249521</span>
                         <strong class='order-type'>代付款</strong>
                     </h4>
                     <ul class='order-list-content-item-content'>
-                        <li class='goods-item' v-for='item in 4' :key='item'>
+                        <li class='goods-item' v-for='item1 in 4' :key='item1'>
                             <div class='goods-item-img'>
                                 <img class='img-item' src="./../../../../assets/img/goods/4.png" alt="">
                             </div>
@@ -35,14 +35,18 @@
                     </ul>
                     <div class='order-list-content-item-footer'>
                         <div class='total-price'>
-                            <span>应付：</span>
-                            <span v-if='false'>退款金额：</span>
-                            <span class='goods-price'><strong style='font-size:12px'>￥</strong>118.00</span>
+                            <span v-if='item.orderType==1'>应付：</span>
+                            <span v-if='item.orderType==4'>退款金额：</span>
+                            <span v-if='item.orderType==4 || item.orderType==1' class='goods-price'><strong style='font-size:12px'>￥</strong>118.00</span>
                         </div>
                         <div class='operation-btn'>
-                            <mt-button type="default" size='small'>取消</mt-button>
-                            <mt-button type="default" size='small'>付款</mt-button>
-                            <mt-button type="default" size='small'>确认收货</mt-button>
+                            <mt-button type="default" @click.native='cancelTheOrder(item)' class='operation-btn-default' v-if='item.orderType==1' size='small'>取消</mt-button>
+                            <mt-button type="default" @click.native='payTheOrder(item)' class='operation-btn-full-color' v-if='item.orderType==1' size='small'>付款</mt-button>
+                            <mt-button type="default" @click.native='checkTheOrderLogistics(item)' class='operation-btn-default' v-if='item.orderType==2' size='small'>查看物流</mt-button>
+                            <mt-button type="default" @click.native='confirmTheOrder(item)' class='operation-btn-outline-color' v-if='item.orderType==2' size='small'>确认收货</mt-button>
+                            <mt-button type="default" @click.native='buyTheOrderAgain(item)' class='operation-btn-default' v-if='item.orderType==3' size='small'>再次购买</mt-button>
+                            <mt-button type="default" @click.native='evaluateTheOrder(item)' class='operation-btn-default' v-if='item.orderType==3' size='small'>评价此单</mt-button>
+                            <mt-button type="default" @click.native='afterSaleTheOrder(item)' class='operation-btn-outline-color' v-if='item.orderType==3' size='small'>退换/售后</mt-button>
                         </div>
                     </div>
                     <div class='gray-content'></div>
@@ -58,6 +62,41 @@ export default {
   name: '',
   data () {
     return {}
+  },
+  methods: {
+    // 取消订单
+    cancelTheOrder (item) {
+      console.log('取消订单')
+    },
+    // 付款按钮
+    payTheOrder (item) {
+      console.log('付款页面')
+      console.log(item)
+      this.$router.push({name: 'OrderDetail', params: {goodsId: item.goodsId}})
+    },
+    // 查看订单物流
+    checkTheOrderLogistics (item) {
+      console.log('查看订单物流')
+      this.$router.push({name: 'LogisticsPage', params: {goodsId: item.goodsId}})
+    },
+    // 确认收货
+    confirmTheOrder () {
+      console.log('确认收货')
+    },
+    // 再次购买
+    buyTheOrderAgain () {
+      console.log('再次购买')
+    },
+    // 评价此单
+    evaluateTheOrder (item) {
+      console.log('评价此单')
+      this.$router.push({name: 'EvaluateGoods', params: {goodsId: item.goodsId}})
+    },
+    // 退货售后
+    afterSaleTheOrder (item) {
+      console.log('退货售后')
+      this.$router.push({name: 'ApplicetionForMoney', params: {goodsId: item.goodsId}})
+    }
   }
 }
 </script>
@@ -168,9 +207,24 @@ export default {
                         }
                     }
                     .operation-btn{
-                        position absolute;    
+                        position absolute;
                         right:1rem;
                         top:12px;
+                        >button{
+                            margin-left:0.5rem;
+                            &.operation-btn-default{
+                                background:#fff;
+                            }
+                            &.operation-btn-full-color{
+                                background:$base-color;
+                                color:#fff;
+                            }
+                            &.operation-btn-outline-color{
+                                color:$base-color;
+                                border:1px solid $base-color;
+                                background:#fff;
+                            }
+                        }
                     }
                 }
             }
