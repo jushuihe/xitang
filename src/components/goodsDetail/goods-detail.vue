@@ -95,10 +95,10 @@
           </ul>
         </div>
         <div class='footer-item'>
-          <mt-button type="default" size="large" class='footer-item-btn default'>加入购物车</mt-button>
+          <mt-button type="default" @click.native='addToShoppingCard' size="large" class='footer-item-btn default'>加入购物车</mt-button>
         </div>
         <div class='footer-item'>
-          <mt-button type="primary" size="large" class='footer-item-btn base-color'>立即购买</mt-button>
+          <mt-button type="primary" @click.native='buyImmediately'  size="large" class='footer-item-btn base-color'>立即购买</mt-button>
         </div>
       </div>
       <!-- 选择规格的时候显示的内容 -->
@@ -121,11 +121,8 @@
           <div class='goods-specification'>
             <h4>规格</h4>
             <ul>
-              <li class='active'>
+              <li @click='hasChoicedSpecification=index' :class='{"active":hasChoicedSpecification==index}' v-for='(item,index) in 5' :key='index'>
                 铜制大貔貅
-              </li>
-              <li>
-                铜制小貔貅
               </li>
             </ul>
           </div>
@@ -150,7 +147,8 @@ export default {
     return {
       nowShowSwipe: 1,
       showSpecification: false,
-      goodsNum: 1
+      goodsNum: 1,
+      hasChoicedSpecification: null
     }
   },
   created () {},
@@ -188,6 +186,15 @@ export default {
     },
     addTheGoods () {
       this.goodsNum++
+    },
+    // 立即购买
+    buyImmediately () {
+      console.log('立即购买')
+      this.$router.push({name: 'ConfirmOrder', query: {'addressId': 1, 'goodsId': [{'da': 1}, {'dada': 2}], 'goodsNum': 1, 'goodsMsg': {'da': 2}}})
+    },
+    // 加入购物车
+    addToShoppingCard () {
+      this.Toast('加入购物车')
     }
   }
 }
@@ -379,7 +386,7 @@ export default {
             line-height:26px;
             font-size:13px;
             padding:0px 14px;
-            margin-right:5px;
+            margin:5px;
             &.active{
               background:$base-color;
               border-color:$base-color;

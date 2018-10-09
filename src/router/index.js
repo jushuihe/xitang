@@ -12,10 +12,14 @@ import PersonCenter1 from '@/components/personCenter/person-center'
 import Coupon from '@/components/personCenter/childrenPage/coupon'
 import HelpCenter from '@/components/personCenter/childrenPage/helpCenter'
 import ShippingAddress from '@/components/personCenter/childrenPage/shippingAddress'
+import AddNewAddress from '@/components/personCenter/childrenPage/add-new-address'
 import OrderList from '@/components/personCenter/childrenPage/orderList'
 import PersonMsg from '@/components/personCenter/childrenPage/person-msg'
 import ChangePassWord from '@/components/personCenter/childrenPage/change-pass-word'
 import GoodsDetail from '@/components/goodsDetail/goods-detail'
+import ConfirmOrder from '@/components/goodsDetail/confirm-order'
+import PayOrder from '@/components/goodsDetail/pay-order'
+import PaySuccess from '@/components/goodsDetail/pay-success'
 import OrderDetail from '@/components/personCenter/childrenPage/OrderDetail/order-detail'
 import LogisticsPage from '@/components/personCenter/childrenPage/logisticsPage/logistics-msg'
 import EvaluateGoods from '@/components/personCenter/childrenPage/evaluateGoods/evaluate-goods'
@@ -79,6 +83,11 @@ export default new Router({
       component: ShippingAddress
     },
     {
+      path: '/AddNewAddress',
+      name: 'AddNewAddress',
+      component: AddNewAddress
+    },
+    {
       path: '/orderList',
       name: 'OrderList',
       component: OrderList
@@ -124,9 +133,24 @@ export default new Router({
       component: SalesReturn
     },
     {
-      path: '/ShoppingCardSolely/',
+      path: '/ShoppingCardSolely',
       name: 'ShoppingCardSolely',
       component: ShoppingCardSolely
+    },
+    {
+      path: '/ConfirmOrder',
+      name: 'ConfirmOrder',
+      component: ConfirmOrder
+    },
+    {
+      path: '/PayOrder/:orderId',
+      name: 'PayOrder',
+      component: PayOrder
+    },
+    {
+      path: '/PaySuccess/:orderId',
+      name: 'PaySuccess',
+      component: PaySuccess
     }
   ]
 })
