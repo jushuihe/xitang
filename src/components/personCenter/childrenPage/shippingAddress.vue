@@ -5,7 +5,7 @@
           <a @click='goBack' slot="left">
             <img class='img-item' src="./../../../assets/img/back.png" alt="">
           </a>
-          <mt-button type="default" v-if='!hasNoAddress' slot='right' @click.native='editorTheAddress'  size="small" class='go-to-home'>编辑</mt-button>
+          <mt-button type="default" v-if='!hasNoAddress' slot='right' @click.native='editorTheAddressList'  size="small" class='go-to-home'>编辑</mt-button>
       </mt-header>
       <div class='main-content'>
         <!-- 如果没有地址 -->
@@ -22,33 +22,38 @@
             title="添加新地址"
             is-link
             to='/AddNewAddress'
-            class='user-defined-mt-cell'
-            @click.native='choicedTheGoodsNum'>
+            class='user-defined-mt-cell'>
           </mt-cell>
           <div class='gray-content'></div>
           <ul class='address-list-content'>
             <li v-for='item in 3' :key='item'>
               <transition name='selected'>
                 <div v-if='isEditorTheAddress' @click='choicedTheAddress(item)' class='selected-img'>
-                  <img v-if='false' src="./../../../assets/img/selected.png" alt="">
-                  <img src="./../../../assets/img/unselected.png" alt="">
+                  <img v-if='choicedAddressIndex === item' class='img-item' src="./../../../assets/img/selected.png" alt="">
+                  <img v-if='choicedAddressIndex !== item' class='img-item' src="./../../../assets/img/unselected.png" alt="">
                 </div>
               </transition>
-              <div class='address-list-msg'>
+              <div class='address-list-msg' @click='choicedTheAddressForOrder'>
                 <h3>吕小布
                   <span v-if='item == 1' class='default-address'>(默认)</span>
                   <span style='float:right;font-size:14px;'>1867777777</span>
                 </h3>
-                <p>湖北省武汉市洪山区光谷一路佛祖岭湖口一路湖口社区13栋2209号</p>
+                <p>湖北省武汉市洪山区光谷一路佛祖岭湖口一路湖口社区13栋09号</p>
               </div>
               <transition name='delete'>
-                <mt-button type="default" class='add-more-address' @click.native='deleteTheAddress(item)'  size="small">
-                  <img class='img-item' src="./../../../assets/img/person/delete.png">
-                </mt-button>
+                <div v-if='isEditorTheAddress' class='delete-the-address'>
+                  <mt-button type="default" class='delete-the-address-btn' @click.native='deleteTheAddress(item)' size="small">
+                    <img slot="icon" height="20" width="16" src="./../../../assets/img/person/delete.png">
+                  </mt-button>
+                </div>
               </transition>
             </li>
           </ul>
         </div>
+      </div>
+      <div class='footer'>
+        <mt-button @click.native='editorTheAddress' :class='{"show-footer-btn" : isEditorTheAddress}' type='default' class='footer-btn' size='small'>编辑</mt-button>
+        <mt-button @click.native='setToTheDefault' :class='{"show-footer-btn" : isEditorTheAddress}' type='primary' class='footer-btn' size='small'>设为默认</mt-button>
       </div>
   </div>
 </template>
@@ -59,7 +64,9 @@ export default {
   data () {
     return {
       hasNoAddress: false,
-      isEditorTheAddress: false
+      isEditorTheAddress: false,
+      // 被选中的地址的编号
+      choicedAddressIndex: 1
     }
   },
   created () {},
@@ -67,9 +74,9 @@ export default {
     goBack () {
       this.$router.go(-1)
     },
-    editorTheAddress () {
+    editorTheAddressList () {
       console.log('编辑地址列表')
-      this.isEditorTheAddress = true
+      this.isEditorTheAddress = !this.isEditorTheAddress
     },
     addMoreAddress () {
       console.log('新增地址')
@@ -79,8 +86,20 @@ export default {
       console.log(item)
     },
     choicedTheAddress (item) {
-      console.log(item)
-      console.log('选中当前的地址')
+      this.choicedAddressIndex = item
+    },
+    // 编辑当前的地址
+    editorTheAddress () {
+      console.log('编辑当前的地址')
+      this.$router.push({name: 'AddNewAddress', params: {'addressId': 1}})
+    },
+    setToTheDefault () {
+      console.log('设置为默认')
+    },
+    // 选中当前的地址为当前的订单的收货地址
+    choicedTheAddressForOrder () {
+      console.log('选为地址 并且跳转到订单的页面')
+      this.$router.back()
     }
   },
   computed: {
@@ -135,10 +154,93 @@ export default {
         list-style none
         background:#fff;
         li{
-          .selected-img{}
-          .address-list-msg{}
-          .add-more-address{}
+          display flex
+          .selected-img{
+            width:2.2rem;
+            margin-left:1rem;
+            position relative
+            >.img-item{
+              width:1.8rem;
+              height:1.8rem;
+              position:absolute
+              top:50%
+              left:0px
+              margin-top:-0.9rem;
+            }
+          }
+          .address-list-msg{
+            margin-left:1.8rem
+            margin-right:1.8rem;
+            &:before{
+              content:'';
+              display table;
+            }
+            h3{
+              line-height 30px;
+              font-size: 18px;
+              text-align left;
+              margin-top:1.3rem;
+              .default-address{
+                color:#ff685c;
+                font-size:12px;
+              }
+            }
+            p{
+              text-align left;
+              font-size: 13px;
+              line-height 22px;
+              padding-bottom:1.2rem;
+              border-bottom:1px solid #eee;
+            }
+          }
+          .delete-the-address{
+            width:3rem;
+            margin-right:1rem;
+            position relative
+            .delete-the-address-btn{
+              padding:0px
+              position absolute;
+              top:50%;
+              margin-top:-16px;
+              left:0px;
+              box-shadow: none;
+            }
+          }
+          .selected-enter-active, .selected-leave-active {
+            transition: all 0.5s linear;
+          }
+          .selected-enter, .selected-leave-to {
+            transform rotateY(90deg);
+            transform-origin:left center;
+          }
+          .delete-enter-active, .delete-leave-active {
+            transition: all 0.5s linear;
+          }
+          .delete-enter, .delete-leave-to {
+            transform rotateY(90deg);
+            transform-origin:left center;
+          }
         }
+      }
+    }
+  }
+  .footer{
+    padding:0px 30px;
+    font-size:0px;
+    background:transparent
+    .footer-btn{
+      width:48%;
+      height:30px;
+      margin-top:10px;
+      border-radius:50px;
+      transition transform 0.5s
+      transform translateY(50px)
+      &.show-footer-btn{
+        transform translateY(0px)
+      }
+      &:last-child{
+        background:$base-color;
+        margin-left:4%;
       }
     }
   }

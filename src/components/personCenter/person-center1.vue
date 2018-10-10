@@ -18,18 +18,21 @@
           <div class='order-list-item' @click='toOrderList'>
             <div class='order-list-item-icon'>
               <img class='img-item' src="./../../assets/img/person/dingdan1.png" alt="">
+              <mt-badge class='order-list-item-icon-badge' size="small" color="#872330">1</mt-badge>
             </div>
             <p class='order-list-item-name'>待付款</p>
           </div>
           <div class='order-list-item' @click='toOrderList'>
             <div class='order-list-item-icon'>
               <img class='img-item' src="./../../assets/img/person/dingdan2.png" alt="">
+              <mt-badge class='order-list-item-icon-badge' size="small" color="#872330">2</mt-badge>
             </div>
             <p class='order-list-item-name'>待收货</p>
           </div>
           <div class='order-list-item' @click='toOrderList'>
             <div class='order-list-item-icon'>
               <img class='img-item' src="./../../assets/img/person/dingdan3.png" alt="">
+              <mt-badge class='order-list-item-icon-badge' size="small" color="#872330">32</mt-badge>
             </div>
             <p class='order-list-item-name'>已收货</p>
           </div>
@@ -236,6 +239,11 @@ export default {
           .iconfont{
             font-size: 24px;
             color: #666;
+          }
+          .order-list-item-icon-badge{
+            position:absolute;
+            top:-5px;
+            right:-12px
           }
         }
         .order-list-item-name{
