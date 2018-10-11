@@ -21,6 +21,44 @@
           </div>
         </div>
         <div class='gray-content'></div>
+        <!-- 退款的流程信息 -->
+        <div class='refund-flow-path' v-if='orderType == 3'>
+          <p>
+            退款118.00元已完成，已退回您的账户
+          </p>
+          <div class='refund-flow-path-content'>
+            <div class='flow-path-img'>
+              <div class='flow-path-img-item'>
+                <div class='circle' :class='{"active":nowRefundPath>0}'></div>
+                <div class='full-content' :class='{"active":nowRefundPath>1}'></div>
+                <img class='flow-path-img-item-img' v-if='nowRefundPath==1' src="./../../../../assets/img/order/course-success.png">
+              </div>
+              <div class='flow-path-img-item'>
+                <div class='circle' :class='{"active":nowRefundPath>1}'></div>
+                <div class='full-content' :class='{"active":nowRefundPath>2}'></div>
+                <img class='flow-path-img-item-img' v-if='nowRefundPath==2' src="./../../../../assets/img/order/course-success.png">
+              </div>
+              <div class='flow-path-img-item'>
+                <div class='circle' :class='{"active":nowRefundPath>2}'></div>
+                <img class='flow-path-img-item-img' v-if='nowRefundPath==3' src="./../../../../assets/img/order/course-success.png">
+              </div>
+            </div>
+            <div class='flow-path-msg'>
+              <div class='flow-path-msg-item'>
+                <p class='item-title'>申请退款</p>
+                <p class='item-time'>2018-9-2 14:34</p>
+              </div>
+              <div class='flow-path-msg-item'>
+                <p class='item-title'>客服受理</p>
+                <p class='item-time'>2018-9-2 14:34</p>
+              </div>
+              <div class='flow-path-msg-item'>
+                <p class='item-title'>退款成功</p>
+                <p class='item-time'>2018-9-2 14:34</p>
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- 商品的信息 -->
         <div class='goods-msg'>
           <div class='goods-msg-logistics'>
@@ -32,16 +70,21 @@
           </div>
           <ul class='goods-msg-list'>
             <li v-for='item in 4' :key='item'>
-              <div class='goods-msg-img'>
-                <img class='img-item' src="./../../../../assets/img/goods/4.png" alt="">
+              <div class='goods-msg-list-content'>
+                <div class='goods-msg-img'>
+                  <img class='img-item' src="./../../../../assets/img/goods/4.png" alt="">
+                </div>
+                <div class='goods-msg-msg'>
+                  <h3>文玩铜锈貔貅摆件
+                    <span class='goods-price'>￥59</span>
+                  </h3>
+                  <p>规格：铜制小貔貅
+                    <span class='goods-num'>x1</span>
+                  </p>
+                </div>
               </div>
-              <div class='goods-msg-msg'>
-                <h3>文玩铜锈貔貅摆件
-                  <span class='goods-price'>￥59</span>
-                </h3>
-                <p>规格：铜制小貔貅
-                  <span class='goods-num'>x1</span>
-                </p>
+              <div v-if='orderType==2 || orderType==4' class='goods-after-sale'>
+                <mt-button @click.native='afterSale' type='default' class='footer-btn base-color-border' size='small'>退换/售后</mt-button>
               </div>
             </li>
           </ul>
@@ -88,11 +131,20 @@
               <strong class='item-value'>+￥10.00</strong>
             </div>
           </div>
-          <div class='gray-content'></div>
         </div>
+        <div class='refund-money' v-if='orderType == 3'>
+          退款总金额：
+          <strong class='total-price'>￥118.00</strong>
+        </div>
+        <div class='gray-content'></div>
       </div>
-      <div class='footer'>
-        <mt-button @click.native='payTheOrder' type='primary' class='footer-btn' size='small'>付款 30:24</mt-button>
+      <div class='footer' v-if='orderType!=3'>
+        <mt-button v-if='orderType==1' @click.native='cancelTheOrder' type='default' class='footer-btn' size='small'>取消支付</mt-button>
+        <mt-button v-if='orderType==1' @click.native='payTheOrder' type='primary' class='footer-btn base-color-btn' size='small'>付款 30:24</mt-button>
+        <mt-button v-if='orderType==2' @click.native='checkTheLogistics' type='default' class='footer-btn' size='small'>查看物流</mt-button>
+        <mt-button v-if='orderType==2' @click.native='confirmGetGoods' type='primary' class='footer-btn base-color-btn' size='small'>确认收货</mt-button>
+        <mt-button v-if='orderType==4' @click.native='buyAgainTheOrder' type='default' class='footer-btn' size='small'>再次购买</mt-button>
+        <mt-button v-if='orderType==4' @click.native='evaluateTheOrder' type='default' class='footer-btn base-color-border' size='small'>评价此单</mt-button>
       </div>
   </div>
 </template>
@@ -102,13 +154,58 @@ export default {
   name: 'coupon',
   data () {
     return {
-      orderType: 1
+      orderType: 4,
+      // 退款售后的流程
+      nowRefundPath: 3
     }
   },
   created () {},
   methods: {
     goBack () {
       this.$router.go(-1)
+    },
+    // 取消订单的按钮事件
+    cancelTheOrder () {
+      this.MessageBox.confirm('确定取消订单？').then(action => {
+        console.log('取消订单')
+      }).catch(() => {
+        console.log('取消')
+      })
+    },
+    // 付款的按钮事件
+    payTheOrder () {
+      // 这里可能是跳转到 支付页面 也可能是跳到确认支付页面
+      // this.$router.push({name: 'PayOrder', params: {orderId: 1}})
+      this.$router.push({name: 'ConfirmOrder', params: {orderId: 1}})
+    },
+    // 联系客服
+    contactTheServer () {
+      console.log('联系客服')
+    },
+    // 查看物流的按钮事件
+    checkTheLogistics () {
+      console.log('查看物流')
+      this.$router.push({name: 'LogisticsPage', params: {goodsId: 1}})
+    },
+    // 确认收货的按钮事件
+    confirmGetGoods () {
+      console.log('确认收货')
+      // 调用接口
+    },
+    // 评价此单
+    evaluateTheOrder () {
+      this.$router.push({name: 'EvaluateGoods', params: {goodsId: 1}})
+    },
+    buyAgainTheOrder () {
+      this.Toast('再次购买')
+    },
+    // 退货售后的按钮
+    afterSale () {
+      if (this.orderType === 2) {
+        this.$router.push({name: 'ApplicetionForMoney', params: {goodsId: 1}})
+      } else if (this.orderType === 4) {
+        this.$router.push({name: 'SalesReturn', params: {goodsId: 1}})
+      }
     }
   },
   computed: {
@@ -139,6 +236,77 @@ export default {
         margin-right:1.5rem;
       }
     }
+    .refund-flow-path{
+      >p{
+        background:#fff;
+        height:44px;
+        line-height 44px;
+        padding-left:1.5rem;
+        font-size:14px;
+        text-align:left;
+      }
+      .refund-flow-path-content{
+        padding-bottom:2rem;
+        .flow-path-img{
+          display flex
+          justify-content: space-around;
+          margin-top:2rem;
+          margin-bottom:1.2rem;
+          .flow-path-img-item{
+            width:35%;
+            height:4px;
+            background:transparent
+            text-align center
+            position:relative
+            .circle{
+              width:12px;
+              height:12px;
+              display:inline-block
+              position:relative
+              top:-4px
+              border-radius 50%
+              background:#aaa;
+              &.active{
+                background:#7ED321
+              }
+            }
+            .flow-path-img-item-img{
+              position absolute;
+              width:20px;
+              height:20px;
+              top:-8px;
+              left:50%;
+              z-index:20;
+              margin-left:-10px;
+            }
+            .full-content{
+              position:absolute;
+              width:100%;
+              height:4px;
+              background:#aaa;
+              top:0px
+              left:50%
+              z-index:10;
+              &.active{
+                background:#7ED321
+              }
+            }
+          }
+        }
+        .flow-path-msg{
+          display flex
+          justify-content: space-around;
+          .flow-path-msg-item{
+            .item-title{
+              line-height:20px;
+            }
+            .item-time{
+              color:#9b9b9b;
+            }
+          }
+        }
+      }
+    }
     .goods-msg{
       background:#fff;
       .goods-msg-logistics{
@@ -159,17 +327,19 @@ export default {
       }
       .goods-msg-list{
         li{
-          padding-top:0.6rem;
-          padding-bottom:0.6rem;
-          border-bottom:1px solid #eee;
+          .goods-msg-list-content{
+            padding-top:0.6rem;
+            padding-bottom:0.6rem;
+            border-bottom:1px solid #eee;
+            margin-left:1.5rem;
+          }
           .goods-msg-img{
             float:left;
-            margin-left:1.5rem;
             width:6rem;
             height:6rem;
           }
           .goods-msg-msg{
-            margin-left:9rem;
+            margin-left:7.5rem;
             height:6rem;
             text-align left;
             >h3{
@@ -189,12 +359,26 @@ export default {
               }
             }
           }
+          .goods-after-sale{
+            text-align right
+            padding 1rem
+            margin-left:1.5rem;
+            border-bottom:1px solid #eee;
+            .base-color-border{
+              color:$base-color;
+              border:1px solid $base-color
+              line-height: 28px;
+              height: 28px;
+              padding: 0px 8px;
+            }
+          }
         }
       }
     }
     .logistics-msg{
       background:#fff;
       text-align left
+      border-bottom:1px solid #eee;
       .logistics-msg-content{
         padding-top:1.5rem;
         padding-bottom:1.5rem;
@@ -242,6 +426,34 @@ export default {
             margin-right:1.5rem;
           }
         }
+      }
+    }
+    .refund-money{
+      background:#fff;
+      height:40px;
+      text-align:left;
+      font-size:14px;
+      padding-left:1.5rem;
+      line-height:40px;
+      .total-price{
+        float:right;
+        margin-right:1.5rem;
+        font-size:18px;
+        color:$base-color;
+      }
+    }
+  }
+  .footer{
+    text-align right;
+    .footer-btn{
+      margin-right: 1rem;
+      margin-top: 8px;
+      &.base-color-btn{
+        background:$base-color;
+      }
+      &.base-color-border{
+        color:$base-color;
+        border:1px solid $base-color
       }
     }
   }

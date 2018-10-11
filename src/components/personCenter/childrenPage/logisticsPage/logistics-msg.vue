@@ -129,6 +129,9 @@ export default {
     },
     contactTheServer () {
       console.log('联系客服')
+    },
+    goBack () {
+      this.$router.back()
     }
   },
   computed: {
