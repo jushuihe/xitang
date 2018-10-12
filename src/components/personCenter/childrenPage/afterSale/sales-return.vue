@@ -44,7 +44,7 @@
         </div>
       </div>
       <div class='footer'>
-        <mt-button @click.native='evaluateTheOrder' type='primary' class='footer-btn' size='large'>提交</mt-button>
+        <mt-button @click.native='submitTheReturnOrder' type='primary' class='footer-btn' size='large'>提交</mt-button>
       </div>
       <!-- 货物情况列表 -->
       <mt-popup
@@ -104,7 +104,7 @@ export default {
       this.$router.go(-1)
     },
     contactTheServer () {
-      // console.log('联系客服')
+      console.log('联系客服')
     },
     showgoodsDescriptionList () {
       console.log('显示货物情况列表')
@@ -129,6 +129,11 @@ export default {
     choicedTheExpressCompany (index) {
       this.choicedExpress = index
       this.isShowExpressCompanyList = false
+    },
+    // 提交退货信息
+    submitTheReturnOrder () {
+      console.log('提交退货信息')
+      this.$router.push({name: 'RefundOrder', goodsId: 1})
     }
   },
   computed: {

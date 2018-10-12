@@ -154,9 +154,9 @@ export default {
   name: 'coupon',
   data () {
     return {
-      orderType: 4,
+      orderType: 2,
       // 退款售后的流程
-      nowRefundPath: 3
+      nowRefundPath: 1
     }
   },
   created () {},

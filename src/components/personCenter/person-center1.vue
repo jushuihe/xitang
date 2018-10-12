@@ -61,37 +61,37 @@
                   </dd>
                   <dt>拼团订单</dt>
               </dl>
-              <dl>
+              <dl @click='toPerformanceManagementPage'>
                   <dd>
                       <img class='img-item' src="./../../assets/img/person/server2.png" alt="">
                   </dd>
                   <dt>我的业绩</dt>
               </dl>
-              <dl>
+              <dl @click='toShippingAddress'>
                   <dd>
                       <img class='img-item' src="./../../assets/img/person/server3.png" alt="">
                   </dd>
                   <dt>地址管理</dt>
               </dl>
-              <dl>
+              <dl @click='toContactServerPage'>
                   <dd>
                       <img class='img-item' src="./../../assets/img/person/server4.png" alt="">
                   </dd>
                   <dt>联系客服</dt>
               </dl>
-              <dl>
+              <dl @click='toTransactionDetailPage'>
                   <dd>
                       <img class='img-item' src="./../../assets/img/person/server5.png" alt="">
                   </dd>
                   <dt>交易明细</dt>
               </dl>
-              <dl>
+              <dl @click='toCollectPage'>
                   <dd>
                       <img class='img-item' src="./../../assets/img/person/server6.png" alt="">
                   </dd>
                   <dt>我的收藏</dt>
               </dl>
-              <dl>
+              <dl @click='toPersonMsgPage'>
                   <dd>
                       <img class='img-item' src="./../../assets/img/person/server7.png" alt="">
                   </dd>
@@ -124,6 +124,25 @@ export default {
     },
     toPersonMsgPage () {
       this.$router.push('/personMsg')
+    },
+    // 跳转到收藏中心页面
+    toCollectPage () {
+      this.$router.push('/CollectPage')
+    },
+    // 跳转到地址管理页面
+    toShippingAddress () {
+      this.$router.push('/ShippingAddress')
+    },
+    // 跳转到交易明细的页面
+    toTransactionDetailPage () {
+      this.$router.push('/TransactionDetail')
+    },
+    toContactServerPage () {
+      this.$router.push('/ContactServer')
+    },
+    // 跳转到我的业绩的页面
+    toPerformanceManagementPage () {
+      this.$router.push('/PerformanceManagement')
     }
   },
   watch: {}

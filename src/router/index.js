@@ -25,6 +25,12 @@ import LogisticsPage from '@/components/personCenter/childrenPage/logisticsPage/
 import EvaluateGoods from '@/components/personCenter/childrenPage/evaluateGoods/evaluate-goods'
 import ApplicetionForMoney from '@/components/personCenter/childrenPage/afterSale/application-for-money'
 import SalesReturn from '@/components/personCenter/childrenPage/afterSale/sales-return'
+import RefundOrder from '@/components/personCenter/childrenPage/afterSale/refund-order'
+import CollectPage from '@/components/personCenter/childrenPage/collect-page/collect-page'
+import TransactionDetail from '@/components/personCenter/childrenPage/transaction-detail/transaction-detail'
+import TransactionItemDetail from '@/components/personCenter/childrenPage/transaction-detail/transaction-item-detail'
+import ContactServer from '@/components/personCenter/childrenPage/contact-server/contact-server'
+import PerformanceManagement from '@/components/personCenter/childrenPage/performance-management/performance-management'
 
 Vue.use(Router)
 
@@ -133,6 +139,11 @@ export default new Router({
       component: SalesReturn
     },
     {
+      path: '/RefundOrder/:goodsId',
+      name: 'RefundOrder',
+      component: RefundOrder
+    },
+    {
       path: '/ShoppingCardSolely',
       name: 'ShoppingCardSolely',
       component: ShoppingCardSolely
@@ -151,6 +162,31 @@ export default new Router({
       path: '/PaySuccess/:orderId',
       name: 'PaySuccess',
       component: PaySuccess
+    },
+    {
+      path: '/CollectPage',
+      name: 'CollectPage',
+      component: CollectPage
+    },
+    {
+      path: '/TransactionDetail',
+      name: 'TransactionDetail',
+      component: TransactionDetail
+    },
+    {
+      path: '/TransactionItemDetail/:transactionId',
+      name: 'TransactionItemDetail',
+      component: TransactionItemDetail
+    },
+    {
+      path: '/ContactServer',
+      name: 'ContactServer',
+      component: ContactServer
+    },
+    {
+      path: '/PerformanceManagement',
+      name: 'PerformanceManagement',
+      component: PerformanceManagement
     }
   ]
 })

@@ -42,7 +42,7 @@
         </div>
       </div>
       <div class='footer'>
-        <mt-button @click.native='evaluateTheOrder' type='primary' class='footer-btn' size='large'>提交</mt-button>
+        <mt-button @click.native='submitTheReturnOrder' type='primary' class='footer-btn' size='large'>提交</mt-button>
       </div>
       <mt-popup
         v-model="isShowgoodsDescriptionList"
@@ -104,6 +104,11 @@ export default {
     choicedTheDescription (index) {
       this.choicedDescription = index
       this.isShowgoodsDescriptionList = false
+    },
+    // 提交退货信息
+    submitTheReturnOrder () {
+      console.log('提交退货信息')
+      this.$router.push({name: 'RefundOrder', goodsId: 1})
     }
   },
   computed: {
