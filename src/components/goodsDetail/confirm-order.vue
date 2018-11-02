@@ -21,24 +21,29 @@
             <div class='choiced-address-footer'></div>
         </div>
         <div class='gray-content'></div>
-        <!-- 选中的商品列表 -->
-        <ul class='goods-list'>
-            <li v-for='item in 4' :key='item'>
-                <div class='goods-img'>
-                    <img src='./../../assets/img/goods/4.png' class='img-item'>
-                </div>
-                <div class='goods-msg'>
-                    <h2>文玩铜锈貔貅摆件</h2>
-                    <p>规格：<span>铜制小貔貅</span></p>
-                    <h6>
-                        <span class='goods-price'>￥<strong style='font-size:20px;'>59</strong></span>
-                        <span style='text-decoration-line:line-through;'>￥99</span>
-                        <span style='float:right'>X <span>2</span></span>
-                    </h6>
-                </div>
-                <div class='gray-content'></div>
-            </li>
-        </ul>
+        <div class='shop-content' v-for='item1 in allGoodsList' v-if='item1.shopName' :key='item1.shopId'>
+            <div class='shop-content-title'>
+                {{item1.shopName}}
+            </div>
+            <!-- 选中的商品列表 -->
+            <ul class='goods-list'>
+                <li v-for='item in item1.carts' v-if='item.goodsName' :key='item.goodsId'>
+                    <div class='goods-img'>
+                        <img src='./../../assets/img/goods/4.png' class='img-item'>
+                    </div>
+                    <div class='goods-msg'>
+                        <h2>{{item.goodsName}}</h2>
+                        <p>规格：<span>{{item.goodsSpecsName}}</span></p>
+                        <h6>
+                            <span class='goods-price'>￥<strong style='font-size:20px;'>{{item.price}}</strong></span>
+                            <span style='text-decoration-line:line-through;'>￥{{item.priceShow}}</span>
+                            <span style='float:right'>X <span>{{item.orderNumber}}</span></span>
+                        </h6>
+                    </div>
+                    <div class='gray-content'></div>
+                </li>
+            </ul>
+        </div>
         <!-- 运费以及留言 -->
         <div class='freight-addition'>
             <div>
@@ -47,14 +52,14 @@
             </div>
             <div>
                 <span>留言</span>
-                <input class='right-input' type='text' placeholder='给商家留言'>
+                <input class='right-input' type='text' v-model='orderRemark' placeholder='给商家留言'>
             </div>
         </div>
       </div>
       <!-- 固定在底部的提交订单的部分 -->
       <div class='footer'>
         <span>合计：
-            <span class='goods-price'>￥<strong style='font-size:20px;'>118.00</strong></span>
+            <span class='goods-price'>￥<strong style='font-size:20px;'>{{totalPrice}}</strong></span>
         </span>
         <div>
             <mt-button type="primary" @click.native='submitTheOrder'  size="large" class='submit-order'>提交订单</mt-button>
@@ -67,18 +72,51 @@
 export default {
   name: 'confirmOrder',
   data () {
-    return {}
+    return {
+      orderRemark: ''
+    }
   },
   created () {
-    console.log(this.goodsMsg)
-    console.log(this.goodsId)
   },
   methods: {
+    // 1、提交订单的接口
+    async saveOrderById (shopId, details) {
+      let param = {
+        orderRemark: this.orderRemark,
+        shopId,
+        rowId: '',
+        addrId: this.addressId,
+        details: details.filter(item => item.goodsId)
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.saveOrderById(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        return result
+      }
+    },
     goBack () {
       this.$router.go(-1)
     },
     submitTheOrder () {
-      this.$router.push({name: 'PayOrder', params: { 'orderId': 1 }})
+      //  因为是分店铺多次提交，所以会返回多个订单编号，现在把多个订单编号放在一个数组里面保存
+      let orderIdArr = []
+      this.allGoodsList.forEach((item, index) => {
+        // 这里需要等到两个异步函数都执行完了之后再 执行后面的事件
+        if (item.shopId) {
+          this.saveOrderById(item.shopId, item.carts).then(data => {
+            orderIdArr.push(data)
+            // 如果订单都已经提交
+            if (orderIdArr.length === this.allGoodsList.filter(item1 => item1.shopId).length) {
+              console.log(orderIdArr)
+              this.$router.push({name: 'PayOrder', params: { 'orderId': orderIdArr.join() }})
+            }
+          })
+        }
+      })
     },
     // 跳转到收货地址的页面
     goToTheAddressPage () {
@@ -86,11 +124,26 @@ export default {
     }
   },
   computed: {
-    goodsMsg () {
-      return this.$route.query.goodsMsg
+    // 用户选中的地址Id
+    addressId () {
+      return this.$route.query.addressId
     },
-    goodsId () {
-      return this.$route.query.goodsId
+    // 传过来的商品的数组
+    allGoodsList () {
+      return JSON.parse(this.$route.query.allGoodsList)
+    },
+    totalPrice () {
+      let totalPrice = 0
+      this.allGoodsList.forEach(item => {
+        if (item.shopId) {
+          item.carts.forEach(item1 => {
+            if (item1.goodsId) {
+              totalPrice += (Number(item1.price) * Number(item1.orderNumber))
+            }
+          })
+        }
+      })
+      return totalPrice.toFixed(2)
     }
   }
 }
@@ -142,41 +195,52 @@ export default {
                 background:url('./../../assets/img/goods/footer.png') repeat;
             }
         }
-        .goods-list{
-            list-style none
-            &>li{
-                background:#fff;
-                padding-top:1.5rem;
-                .goods-img{
-                    float: left;
-                    width: 6.6rem;
-                    height: 6.6rem;
-                    margin-left:1.5rem;
-                    text-align left
-                }
-                .goods-msg{
-                    margin-left:9.6rem;
-                    margin-right:1.5rem;
-                    min-height:7rem;
-                    text-align left;
-                    margin-bottom:1.5rem;
-                    >h2{
-                        font-size:16px;
-                        color:#4a4a4a;
-                        line-height 3rem;
+        .shop-content{
+            background:#fff;
+            .shop-content-title{
+                line-height:30px;
+                font-size:16px;
+                padding-left:2.8rem;
+                text-align:left;
+                background:url('./../../assets/img/home.png') no-repeat 1rem center;
+                background-size:16px 16px;
+            }
+            .goods-list{
+                list-style none
+                &>li{
+                    background:#fcfcfc;
+                    padding-top:1.5rem;
+                    .goods-img{
+                        float: left;
+                        width: 6.6rem;
+                        height: 6.6rem;
+                        margin-left:1.5rem;
+                        text-align left
                     }
-                    >p{
-                        font-size:12px;
-                        color:#aaa;
-                        line-height:1.6rem
-                    }
-                    >h6{
-                        font-size:12px;
-                        color:#aaa;
-                        line-height:2rem
-                        .goods-price{
-                            color:$base-color;
-                            font-weight:600;
+                    .goods-msg{
+                        margin-left:9.6rem;
+                        margin-right:1.5rem;
+                        min-height:7rem;
+                        text-align left;
+                        margin-bottom:1.5rem;
+                        >h2{
+                            font-size:16px;
+                            color:#4a4a4a;
+                            line-height 3rem;
+                        }
+                        >p{
+                            font-size:12px;
+                            color:#aaa;
+                            line-height:1.6rem
+                        }
+                        >h6{
+                            font-size:12px;
+                            color:#aaa;
+                            line-height:2rem
+                            .goods-price{
+                                color:$base-color;
+                                font-weight:600;
+                            }
                         }
                     }
                 }

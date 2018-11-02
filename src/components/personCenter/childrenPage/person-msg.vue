@@ -9,9 +9,9 @@
         <h2 class="block-header" @click='changeTheNickName'>基本信息</h2>
         <div class='cell-group'>
             <mt-cell title="头像" class='user-defined-mt-cell'>
-              <span><img class='user-avatar' src="../../../assets/img/avatar.jpg" alt=""></span>
+              <span><img class='user-avatar' :src='wechatHeadImgUrl' alt=""></span>
             </mt-cell>
-            <mt-cell title="昵称" class='user-defined-mt-cell' value='15337261725' @click.native='changeTheNickName' is-link>
+            <mt-cell title="昵称" class='user-defined-mt-cell' :value='wechatName' @click.native='changeTheNickName' is-link>
             </mt-cell>
             <mt-cell title="性别" class='user-defined-mt-cell' value='保密' @click.native='changeTheSex'  is-link>
             </mt-cell>
@@ -24,7 +24,9 @@
     <div class='content-item'>
         <h2 class="block-header">账号绑定</h2>
         <div class='cell-group'>
-            <mt-cell title="手机号" class='user-defined-mt-cell' :value='userPhone'  @click.native='changeTheUserPhone' is-link>
+            <!-- <mt-cell title="手机号" class='user-defined-mt-cell' :value='userPhone'  @click.native='changeTheUserPhone' is-link>
+            </mt-cell> -->
+            <mt-cell title="手机号" class='user-defined-mt-cell' to='/boundPhone' is-link>
             </mt-cell>
             <mt-cell title="微信" class='user-defined-mt-cell' value='已绑定' is-link>
             </mt-cell>
@@ -121,6 +123,17 @@ export default {
     },
     goBack () {
       this.$router.back()
+    }
+  },
+  computed: {
+    openId () {
+      return this.str.readS('openId')
+    },
+    wechatName () {
+      return this.str.readS('wechatName')
+    },
+    wechatHeadImgUrl () {
+      return this.str.readS('wechatHeadImgUrl')
     }
   }
 }

@@ -83,9 +83,24 @@ export default {
   },
   components: {},
   created () {
-    // this.getTheGoodsComment()
+    this.traceAppOrderById()
   },
   methods: {
+    // 1、获取订单的物流轨迹
+    async traceAppOrderById () {
+      let param = {
+        rowId: Number(this.orderId)
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.traceAppOrderById(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        console.log(result)
+      }
+    },
     getTheGoodsComment () {
       let param = {
         logistic: this.logistic,
@@ -135,11 +150,8 @@ export default {
     }
   },
   computed: {
-    logistic () {
-      return this.$route.params.logistic
-    },
-    exprcode () {
-      return this.$route.params.exprcode
+    orderId () {
+      return this.$route.params.goodsId
     }
   }
 }

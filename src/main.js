@@ -7,6 +7,10 @@ import {MessageBox, Toast, Indicator} from 'mint-ui'
 import MintUI from 'mint-ui'
 import Util from '@/util/util.js'
 import store from './vuex/store'
+import goodsAPI from '@/fetch/goodsServer.js'
+import userAPI from '@/fetch/UserServer.js'
+import show from '@/fetch/show.js'
+import str from '@/fetch/StorageService.js'
 import 'mint-ui/lib/style.css'
 import '@/assets/css/base.css'
 // 引入自定义字体
@@ -15,6 +19,10 @@ Vue.config.productionTip = false
 Vue.prototype.MessageBox = MessageBox
 Vue.prototype.Toast = Toast
 Vue.prototype.Indicator = Indicator
+Vue.prototype.goodsAPI = goodsAPI
+Vue.prototype.userAPI = userAPI
+Vue.prototype.show = show
+Vue.prototype.str = str
 Vue.use(MintUI)
 /* eslint-disable no-new */
 // 在页面进入之前执行的操作

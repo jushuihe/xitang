@@ -5,9 +5,9 @@
         <div class='user-avatar' @click='toPersonMsgPage'>
             <table></table>
             <div class='user-info__avatar'>
-              <img src="./../../assets/img/avatar.jpg" alt="">
+              <img :src='wechatHeadImgUrl' alt="">
             </div>
-            <div class='user-name'>15337261725</div>
+            <div class='user-name'>{{wechatName}}</div>
         </div>
       </div>
       <!-- 用户的订单状况 -->
@@ -97,11 +97,12 @@
                   </dd>
                   <dt>设置</dt>
               </dl>
-              <dl>
+              <dl @click='toMessageCenterPage'>
                   <dd>
                       <img class='img-item' src="./../../assets/img/person/server8.png" alt="">
                   </dd>
-                  <dt>礼包</dt>
+                  <!-- <dt>礼包</dt> -->
+                  <dt>消息中心</dt>
               </dl>
           </div>
       </div>
@@ -143,9 +144,23 @@ export default {
     // 跳转到我的业绩的页面
     toPerformanceManagementPage () {
       this.$router.push('/PerformanceManagement')
+    },
+    toMessageCenterPage () {
+      this.$router.push('/MessageCenter')
     }
   },
-  watch: {}
+  watch: {},
+  computed: {
+    openId () {
+      return this.str.readS('openId')
+    },
+    wechatName () {
+      return this.str.readS('wechatName')
+    },
+    wechatHeadImgUrl () {
+      return this.str.readS('wechatHeadImgUrl')
+    }
+  }
 }
 </script>
 

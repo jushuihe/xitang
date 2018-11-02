@@ -26,7 +26,7 @@
           </mt-cell>
           <div class='gray-content'></div>
           <ul class='address-list-content'>
-            <li v-for='item in 3' :key='item'>
+            <li v-for='item in addressList' :key='item.addressId'>
               <transition name='selected'>
                 <div v-if='isEditorTheAddress' @click='choicedTheAddress(item)' class='selected-img'>
                   <img v-if='choicedAddressIndex === item' class='img-item' src="./../../../assets/img/selected.png" alt="">
@@ -34,11 +34,11 @@
                 </div>
               </transition>
               <div class='address-list-msg' @click='choicedTheAddressForOrder'>
-                <h3>吕小布
-                  <span v-if='item == 1' class='default-address'>(默认)</span>
-                  <span style='float:right;font-size:14px;'>1867777777</span>
+                <h3>{{item.contact}}
+                  <span v-if='item.isDefault == 0' class='default-address'>(默认)</span>
+                  <span style='float:right;font-size:14px;'>{{item.phone}}</span>
                 </h3>
-                <p>湖北省武汉市洪山区光谷一路佛祖岭湖口一路湖口社区13栋09号</p>
+                <p>{{item.desc}}</p>
               </div>
               <transition name='delete'>
                 <div v-if='isEditorTheAddress' class='delete-the-address'>
@@ -66,11 +66,27 @@ export default {
       hasNoAddress: false,
       isEditorTheAddress: false,
       // 被选中的地址的编号
-      choicedAddressIndex: 1
+      choicedAddressIndex: 1,
+      addressList: []
     }
   },
-  created () {},
+  created () {
+    this.getAddrList()
+  },
   methods: {
+    // 1、获取收货地址列表
+    async getAddrList () {
+      let param = {}
+      this.Indicator.open()
+      let result = await this.userAPI.getAddrList(param)
+      result = this.show.dealResult1(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        this.addressList = result.list
+      }
+    },
     goBack () {
       this.$router.go(-1)
     },
@@ -169,8 +185,9 @@ export default {
             }
           }
           .address-list-msg{
-            margin-left:1.8rem
-            margin-right:1.8rem;
+            margin-left: 1.8rem
+            margin-right: 1.8rem;
+            width: 100%;
             &:before{
               content:'';
               display table;

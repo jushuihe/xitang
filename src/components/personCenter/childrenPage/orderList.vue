@@ -49,20 +49,7 @@ export default {
       selected: '1',
       value: '',
       // orderType=1 待付款 orderType=2 待收货 orderType=3 已收货 orderType=4 退款中
-      orderList: [
-        {goodsId: 1, orderType: 1, price: 12},
-        {goodsId: 1, orderType: 1, price: 12},
-        {goodsId: 1, orderType: 1, price: 12},
-        {goodsId: 1, orderType: 2, price: 12},
-        {goodsId: 1, orderType: 2, price: 12},
-        {goodsId: 1, orderType: 2, price: 12},
-        {goodsId: 1, orderType: 3, price: 12},
-        {goodsId: 1, orderType: 3, price: 12},
-        {goodsId: 1, orderType: 4, price: 12},
-        {goodsId: 1, orderType: 4, price: 12},
-        {goodsId: 1, orderType: 4, price: 12},
-        {goodsId: 1, orderType: 4, price: 12}
-      ]
+      orderList: []
     }
   },
   components: {
@@ -71,8 +58,30 @@ export default {
     awaitTakeGoods,
     alreadyTakeGoods
   },
-  created () {},
+  created () {
+    this.getOrderListByUserId()
+  },
   methods: {
+    // 1、获取当前用户的所有订单列表
+    async getOrderListByUserId () {
+      let param = {
+        orderNo: '1',
+        beginTime: '',
+        endTime: '',
+        phone: '',
+        orderStatus: null
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.getOrderListByUserId(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        this.orderList = result
+        console.log(this.orderList)
+      }
+    },
     toHome () {
       this.$router.push('/base/home')
     },
@@ -83,16 +92,17 @@ export default {
   watch: {},
   computed: {
     // 等待付款的订单列表
+    // 订单状态(0：提交，1：已支付，2：已发货，3：已收货，4：已完成订单，9：作废)
     awaitPaymentOrderList () {
-      return this.orderList.filter(item => item.orderType === 1)
+      return this.orderList.filter(item => item.orderStatus === 0)
     },
     // 等待收货的订单列表
     awaitTakeGoodsOrderList () {
-      return this.orderList.filter(item => item.orderType === 2)
+      return this.orderList.filter(item => item.orderStatus === 1 || item.orderStatus === 2)
     },
     // 已经收货的订单列表
     alreadyTakeGoodsOrderList () {
-      return this.orderList.filter(item => item.orderType === 3)
+      return this.orderList.filter(item => item.orderStatus === 3 || item.orderStatus === 4)
     }
   }
 }

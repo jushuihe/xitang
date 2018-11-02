@@ -6,20 +6,7 @@
           </a>
       </mt-header>
       <div class='main-content'>
-        <!-- 顶部的商品信息 部分 -->
-        <div class='goods-msg'>
-          <ul class='goods-msg-list'>
-            <li v-for='item in 5' :key='item'>
-              <div class='goods-msg-img'>
-                <img class='img-item' src="./../../../../assets/img/goods/4.png" alt="">
-              </div>
-              <div class='goods-msg-msg'>
-                <h3>文玩铜锈貔貅摆件</h3>
-                <p>收藏时间：2018-09-18</p>
-              </div>
-            </li>
-          </ul>
-        </div>
+        <h1>对话框</h1>
       </div>
   </div>
 </template>

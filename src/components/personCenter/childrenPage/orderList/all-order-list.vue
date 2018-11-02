@@ -11,10 +11,11 @@
         </div>
         <div class='orderList'  v-if='orderList.length>0'>
             <div class='orderListContent'>
-                <div class='order-list-content-item' v-for='item in orderList' :key='item.goodsId'>
+                <div class='order-list-content-item' v-for='item in orderList' :key='item.orderNo'>
                     <h4 class='order-list-content-item-header'>订单编号：
-                        <span>201803249521</span>
-                        <strong class='order-type'>代付款</strong>
+                        <span>{{item.orderNo}}</span>
+                        <strong class='order-type' v-if='item.payFlag === 0'>未付款</strong>
+                        <strong class='order-type' v-if='item.payFlag === 1'>已付款</strong>
                     </h4>
                     <ul class='order-list-content-item-content'>
                         <li class='goods-item' v-for='item1 in 4' :key='item1'>
@@ -35,18 +36,18 @@
                     </ul>
                     <div class='order-list-content-item-footer'>
                         <div class='total-price'>
-                            <span v-if='item.orderType==1'>应付：</span>
-                            <span v-if='item.orderType==4'>退款金额：</span>
-                            <span v-if='item.orderType==4 || item.orderType==1' class='goods-price'><strong style='font-size:12px'>￥</strong>118.00</span>
+                            <span v-if='item.orderStatus == 0'>应付：</span>
+                            <span v-if='item.afterSalesFlag == 1'>退款金额：</span>
+                            <span v-if='item.afterSalesFlag == 1 || item.orderStatus == 0' class='goods-price'><strong style='font-size:12px'>￥</strong>{{item.totalPrice}}</span>
                         </div>
                         <div class='operation-btn'>
-                            <mt-button type="default" @click.native='cancelTheOrder(item)' class='operation-btn-default' v-if='item.orderType==1' size='small'>取消</mt-button>
-                            <mt-button type="default" @click.native='payTheOrder(item)' class='operation-btn-full-color' v-if='item.orderType==1' size='small'>付款</mt-button>
-                            <mt-button type="default" @click.native='checkTheOrderLogistics(item)' class='operation-btn-default' v-if='item.orderType==2' size='small'>查看物流</mt-button>
-                            <mt-button type="default" @click.native='confirmTheOrder(item)' class='operation-btn-outline-color' v-if='item.orderType==2' size='small'>确认收货</mt-button>
-                            <mt-button type="default" @click.native='buyTheOrderAgain(item)' class='operation-btn-default' v-if='item.orderType==3' size='small'>再次购买</mt-button>
-                            <mt-button type="default" @click.native='evaluateTheOrder(item)' class='operation-btn-default' v-if='item.orderType==3' size='small'>评价此单</mt-button>
-                            <mt-button type="default" @click.native='afterSaleTheOrder(item)' class='operation-btn-outline-color' v-if='item.orderType==3' size='small'>退换/售后</mt-button>
+                            <mt-button type="default" @click.native='cancelTheOrder(item)' class='operation-btn-default' v-if='item.orderStatus == 0' size='small'>取消</mt-button>
+                            <mt-button type="default" @click.native='payTheOrder(item)' class='operation-btn-full-color' v-if='item.orderStatus == 0' size='small'>付款</mt-button>
+                            <mt-button type="default" @click.native='confirmTheOrder(item)' class='operation-btn-outline-color' v-if='item.orderStatus == 1' size='small'>确认收货</mt-button>
+                            <mt-button type="default" @click.native='checkTheOrderLogistics(item)' class='operation-btn-default' v-if='item.orderStatus == 2' size='small'>查看物流</mt-button>
+                            <mt-button type="default" @click.native='buyTheOrderAgain(item)' class='operation-btn-default' v-if='item.orderStatus == 3 || item.orderStatus == 4' size='small'>再次购买</mt-button>
+                            <mt-button type="default" @click.native='evaluateTheOrder(item)' class='operation-btn-default' v-if='item.orderStatus == 3 || item.orderStatus == 4' size='small'>评价此单</mt-button>
+                            <mt-button type="default" @click.native='afterSaleTheOrder(item)' class='operation-btn-outline-color' v-if='item.orderStatus == 3 || item.orderStatus == 4' size='small'>退换/售后</mt-button>
                         </div>
                     </div>
                     <div class='gray-content'></div>
@@ -64,24 +65,69 @@ export default {
     return {}
   },
   methods: {
+    // 1、通过订单表ID获取订单详情
+    async getOrderDetailById (orderId) {
+      let param = {
+        rowId: orderId
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.getOrderDetailById(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        this.orderDetail = result
+        console.log(this.orderDetail)
+      }
+    },
+    // 2、取消订单
+    async deleteOrderById (orderId) {
+      let param = {
+        rowId: Number(orderId)
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.deleteOrderById(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        console.log(result)
+      }
+    },
+    // 3、确认收货的接口
+    async deliveryCheckOrderById (orderId) {
+      let param = {
+        rowId: orderId
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.deliveryCheckOrderById(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        console.log(result)
+      }
+    },
     // 取消订单
     cancelTheOrder (item) {
-      console.log('取消订单')
+      this.deleteOrderById(item.rowId)
     },
     // 付款按钮
     payTheOrder (item) {
-      console.log('付款页面')
-      console.log(item)
-      this.$router.push({name: 'OrderDetail', params: {goodsId: item.goodsId}})
+      this.$router.push({name: 'PayOrder', params: {orderId: item.rowId}})
     },
     // 查看订单物流
     checkTheOrderLogistics (item) {
       console.log('查看订单物流')
-      this.$router.push({name: 'LogisticsPage', params: {goodsId: item.goodsId}})
+      this.$router.push({name: 'LogisticsPage', params: {goodsId: item.rowId}})
     },
     // 确认收货
-    confirmTheOrder () {
+    confirmTheOrder (item) {
       console.log('确认收货')
+      this.deliveryCheckOrderById(item.rowId)
     },
     // 再次购买
     buyTheOrderAgain () {
@@ -90,12 +136,15 @@ export default {
     // 评价此单
     evaluateTheOrder (item) {
       console.log('评价此单')
-      this.$router.push({name: 'EvaluateGoods', params: {goodsId: item.goodsId}})
+      this.$router.push({name: 'EvaluateGoods', params: {goodsId: item.rowId}})
     },
     // 退货售后
     afterSaleTheOrder (item) {
       console.log('退货售后')
-      this.$router.push({name: 'ApplicetionForMoney', params: {goodsId: item.goodsId}})
+      this.$router.push({name: 'ApplicetionForMoney', params: {goodsId: item.rowId}})
+    },
+    toHome () {
+      this.$router.push({name: 'Home'})
     }
   }
 }

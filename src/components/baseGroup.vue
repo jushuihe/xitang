@@ -80,8 +80,8 @@ export default {
 @import './../assets/css/base-style.styl'
 .page{
     .container{
-      padding-top: 40px;
-      padding-bottom: 65px;
+      padding-top: 0px;
+      // padding-bottom: 65px;
       min-height: 100vh;
       box-sizing: border-box;
       background:#ececec;

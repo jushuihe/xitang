@@ -4,6 +4,7 @@ import BaseGroup from '@/components/BaseGroup'
 import Home from '@/components/home/home'
 import GroupBuy from '@/components/groupBuy/group-buy'
 import Classification from '@/components/classification/classification'
+import ClassificationGoodsList from '@/components/classification/classification-goodsList'
 import ShoppingCard from '@/components/shoppingCard/shopping-card'
 // 这是单独的购物车页面
 import ShoppingCardSolely from '@/components/shoppingCard/solely-shopping-card'
@@ -31,6 +32,9 @@ import TransactionDetail from '@/components/personCenter/childrenPage/transactio
 import TransactionItemDetail from '@/components/personCenter/childrenPage/transaction-detail/transaction-item-detail'
 import ContactServer from '@/components/personCenter/childrenPage/contact-server/contact-server'
 import PerformanceManagement from '@/components/personCenter/childrenPage/performance-management/performance-management'
+import MessageCenter from '@/components/personCenter/childrenPage/messageCenter/message-center'
+import NotificationMessage from '@/components/personCenter/childrenPage/messageCenter/notification-message'
+import BoundPhone from '@/components/personCenter/childrenPage/boundPhone/bound-phone'
 
 Vue.use(Router)
 
@@ -50,6 +54,11 @@ export default new Router({
           path: 'Classification',
           name: 'Classification',
           component: Classification
+        },
+        {
+          path: 'ClassificationGoodsList/:classificationId',
+          name: 'ClassificationGoodsList',
+          component: ClassificationGoodsList
         },
         {
           path: 'PersonCenter',
@@ -184,9 +193,24 @@ export default new Router({
       component: ContactServer
     },
     {
+      path: '/MessageCenter',
+      name: 'MessageCenter',
+      component: MessageCenter
+    },
+    {
+      path: '/NotificationMessage',
+      name: 'NotificationMessage',
+      component: NotificationMessage
+    },
+    {
       path: '/PerformanceManagement',
       name: 'PerformanceManagement',
       component: PerformanceManagement
+    },
+    {
+      path: '/BoundPhone',
+      name: 'BoundPhone',
+      component: BoundPhone
     }
   ]
 })

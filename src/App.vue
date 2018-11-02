@@ -6,7 +6,13 @@
 
 <script>
 export default {
-  name: 'App'
+  name: 'App',
+  created () {
+    if (this.$route.query.openId) {
+      console.log(this.$route.query.openId)
+      this.str.writeS('openId', this.$route.query.openId)
+    }
+  }
 }
 </script>
 

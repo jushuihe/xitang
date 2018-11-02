@@ -10,7 +10,36 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
+    proxyTable: {
+      '/manage': {
+        target: 'http://xitang.shijiweika.com',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/manage/': '/manage/'
+        },
+      },
+      '/web': {
+        target: 'http://xitang.shijiweika.com',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/web/': '/web/'
+        },
+      },
+      '/pingxx': {
+        target: 'http://xitang.shijiweika.com',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/pingxx/': '/pingxx/'
+        },
+      },
+      '/sms': {
+        target: 'http://xitang.shijiweika.com',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/sms/': '/sms/'
+        },
+      },
+    },
 
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST

@@ -1,7 +1,7 @@
 <template>
   <div class="home-page">
     <header class='base-header'>
-        <div class='img-content'>
+        <div class='img-content' @click='getTheSaoYiSao'>
             <img src="../../assets/img/saoyisao.png" class='img-item' alt="">
         </div>
         <div class='search-content'>
@@ -15,26 +15,16 @@
     <!-- 导航栏 -->
     <nav class='search-component'>
         <ul class='search-component-min-content'>
-            <li :class='{"active":activeNav==1}' @click='changeTheActiveNav(1)'>推荐</li>
-            <li :class='{"active":activeNav==2}' @click='changeTheActiveNav(2)'>商品</li>
-            <li :class='{"active":activeNav==3}' @click='changeTheActiveNav(3)'>商品</li>
-            <li :class='{"active":activeNav==4}' @click='changeTheActiveNav(4)'>商品</li>
-            <li :class='{"active":activeNav==5}' @click='changeTheActiveNav(5)'>商品</li>
-            <li :class='{"active":activeNav==6}' @click='changeTheActiveNav(6)'>商品</li>
+            <li :class='{"active":activeNav=="default"}' @click='changeTheActiveNav("default")'>推荐</li>
+            <!-- 取目录的前五个 -->
+            <li v-if='index < 5' v-for='(item, index) in catalogList' :key='item.rowId' :class='{"active":activeNav == item.rowId}' @click='changeTheActiveNav(item, index)'>{{item.name}}</li>
         </ul>
         <div class='show-more-btn' @click="showMore">
             <img class='img-item' src="../../assets/img/showmore.png" alt="">
         </div>
         <transition name='fade'>
             <ul v-if='showMoreNav' class='search-component-max-content'>
-                <li>商品</li>
-                <li>商品</li>
-                <li>商品</li>
-                <li>商品</li>
-                <li>商品</li>
-                <li>商品</li>
-                <li>商品</li>
-                <li>商品</li>
+               <li v-if='index > 5' v-for='(item, index) in catalogList' :key='item.id' @click='changeTheActiveNav(item, index)'>{{item.name}}</li>
             </ul>
         </transition>
     </nav>
@@ -50,6 +40,16 @@
         <img class='img-item' src="./../../assets/img/goods/2.png" alt="">
       </mt-swipe-item>
     </mt-swipe>
+    <!-- 测试微信登录 -->
+    <div>
+      <h1>
+        登录号：{{openId}}
+      </h1>
+      <h1>
+        用户昵称：{{wechatName}}
+      </h1>
+      <img :src="wechatHeadImgUrl" alt="">
+    </div>
     <!-- 分类部分 -->
     <section class='classify'>
       <div class='gray-content'></div>
@@ -63,14 +63,14 @@
           <img class='img-item' src="./../../assets/img/goods/1.png" alt="">
         </div>
         <div class='classify-part-content'>
-          <dl class='classify-part-content-item' v-for='item in 9' :key='item' @click='toGoodDetail(item)'>
+          <dl class='classify-part-content-item' v-for='item in goodsList' :key='item.rowId' @click='toGoodDetail(item)'>
             <!-- 定义列表中的项目 -->
             <dt class='classify-part-content-item-img'>
-              <img class='img-item' src="./../../assets/img/goods/3.png" alt="">
+              <img class='img-item' :src='item.photos ? item.photos[0].url : ""' alt="">
             </dt>
             <!-- 描述列表中的项目 -->
-            <dd class='classify-part-content-item-name'>Q版文殊菩萨</dd>
-            <dd class='classify-part-content-item-price'><strong style='font-size:12px;'>￥</strong>159</dd>
+            <dd class='classify-part-content-item-name'>{{item.name}}</dd>
+            <dd class='classify-part-content-item-price'><strong style='font-size:12px;'>￥</strong>{{item.price}}</dd>
           </dl>
         </div>
       </section>
@@ -109,18 +109,86 @@ export default {
       selected: 'home',
       value: '',
       // 当前激活的导航菜单项
-      activeNav: 1,
-      showMoreNav: false
+      activeNav: 'default',
+      showMoreNav: false,
+      // 目录列表
+      catalogList: [],
+      // 商品列表
+      goodsList: []
     }
   },
-  created () {},
+  created () {
+    // this.testAPI()
+    this.getGoodsCatalogList()
+    this.getGoodsListWithPage()
+    // if (this.$route.query.openId) {
+    //   console.log(this.$route.query.openId)
+    //   this.str.writeS('openId', this.$route.query.openId)
+    // }
+  },
   methods: {
+    // 1、获取目录列表
+    async getGoodsCatalogList () {
+      let param = {
+        parentId: null
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.getGoodsCatalogList(param)
+      // 现在dealResult方法需要传入第二个参数this，用来调用this的方法
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      console.log(result)
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        // 成功获取到了参数
+        this.catalogList = result
+        if (this.catalogList.length === 0) {
+          this.Toast('当前的目录的数据为空')
+        } else {
+        }
+      }
+    },
+    // 2、根据不同的条件获取商品列表
+    async getGoodsListWithPage (name, catalogId) {
+      let param = {
+        name,
+        catalogId,
+        pageNow: 1,
+        limit: 0
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.getGoodsList(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        // 成功获取到了参数
+        this.goodsList = result
+        if (this.goodsList.length === 0) {
+          this.Toast('当前的商品的数据为空')
+        } else {
+          // 处理商品的数据
+          console.log(this.goodsList)
+        }
+      }
+    },
     handleChange () {},
     choicedTheGoods (item) {
       console.log(item)
     },
-    changeTheActiveNav (index) {
-      this.activeNav = index
+    changeTheActiveNav (item, index) {
+      if (item === 'default') {
+        this.activeNav = 'default'
+      } else {
+        this.activeNav = item.rowId
+        console.log('获取商品列表')
+        if (index > 5) {
+          this.catalogList.splice(index, 1)
+          this.catalogList.unshift(item)
+        }
+      }
     },
     showMore () {
       console.log('显示更多的导航项')
@@ -134,12 +202,27 @@ export default {
     // 跳转到商品详情页面
     toGoodDetail (item) {
       console.log(item)
-      this.$router.push({name: 'goodsDetail', params: {goodsId: item}})
+      this.$router.push({name: 'goodsDetail', params: {goodsId: item.rowId}})
+    },
+    getTheSaoYiSao () {
+      console.log(1)
+      window.open('http://sao315.com/w/api/saoyisao?redirect_uri=www.baidu.com')
     }
   },
   watch: {
     selected (val) {
       this.$router.push('/base/' + val)
+    }
+  },
+  computed: {
+    openId () {
+      return this.str.readS('openId')
+    },
+    wechatName () {
+      return this.str.readS('wechatName')
+    },
+    wechatHeadImgUrl () {
+      return this.str.readS('wechatHeadImgUrl')
     }
   }
 }
@@ -168,6 +251,7 @@ export default {
             top:5px;
             padding:3px;
             box-sizing border-box
+            z-index:10;
             &:last-child{
                 right:5px;
                 left: auto;

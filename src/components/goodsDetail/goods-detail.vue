@@ -1,81 +1,96 @@
 <template>
   <div class="page">
-      <mt-header title="商品详情">
+      <mt-header title="商品详情" class='page-header'>
           <a @click='goBack' slot="left">
             <img class='img-item' src="./../../assets/img/back.png" alt="">
           </a>
           <img slot="right" class='img-item' src="./../../assets/img/share.png" alt="">
       </mt-header>
-      <!-- 商品的轮播图部分 -->
-      <div class='swip-content'>
-        <mt-swipe :show-indicators="false" style='height:100%' :auto="0" @change="handleChange">
-          <mt-swipe-item>
-            <img class='img-item' src="./../../assets/img/goods/goods1.jpg" alt="">
-          </mt-swipe-item>
-          <mt-swipe-item>
-            <img class='img-item' src="./../../assets/img/goods/goods2.jpg" alt="">
-          </mt-swipe-item>
-          <mt-swipe-item>
-            <img class='img-item' src="./../../assets/img/goods/goods3.jpg" alt="">
-          </mt-swipe-item>
-          <mt-swipe-item>
-            <img class='img-item' src="./../../assets/img/goods/goods4.jpg" alt="">
-          </mt-swipe-item>
-          <mt-swipe-item>
-            <img class='img-item' src="./../../assets/img/goods/goods5.jpg" alt="">
-          </mt-swipe-item>
-        </mt-swipe>
-        <div class='swip-badge'>
-          <span style='font-size:14px;'>{{nowShowSwipe}}</span>
-          <span style='font-size:14px;'>/</span>
-          <span style='font-size:14px'>5</span>
+      <div class='main-content'>
+        <!-- 头部导航栏 -->
+        <div class='header-nav' v-if='showMorePicContent'>
+          <ul>
+            <li><a :class='{"active":theChoicedNav==1}' href="#">商品</a></li>
+            <li><a :class='{"active":theChoicedNav==2}' href="#">详情</a></li>
+            <li><a :class='{"active":theChoicedNav==3}' href="#">评价</a></li>
+          </ul>
         </div>
-      </div>
-      <!-- 商品名称 价格介绍部分 -->
-      <div class='goods-msg-content'>
-        <!-- 商品名称 介绍 价格 -->
-        <div class='goods-name'>
-          <h3>文玩铜锈貔貅摆件</h3>
-          <p>优质古铜，古法铸造，高温着色，开运招财</p>
-          <div class='goods-price'>
-            <span class='goods-price-practical'>
-              <strong>拼团价</strong>
-              ￥<strong style='font-size:24px;'>59</strong>
-            </span>
-            &nbsp;&nbsp;
-            <span style="text-decoration:line-through;"><span>单买价</span>￥99</span>
+        <!-- 商品的轮播图部分 -->
+        <div class='swip-content' :class='{"showMorePicContent":showMorePicContent}'>
+          <mt-swipe :show-indicators="false" style='height:100%' :auto="0" @change="handleChange">
+            <mt-swipe-item>
+              <img class='img-item' src="./../../assets/img/goods/goods1.jpg" alt="">
+            </mt-swipe-item>
+            <mt-swipe-item>
+              <img class='img-item' src="./../../assets/img/goods/goods2.jpg" alt="">
+            </mt-swipe-item>
+            <mt-swipe-item>
+              <img class='img-item' src="./../../assets/img/goods/goods3.jpg" alt="">
+            </mt-swipe-item>
+            <mt-swipe-item>
+              <img class='img-item' src="./../../assets/img/goods/goods4.jpg" alt="">
+            </mt-swipe-item>
+            <mt-swipe-item>
+              <img class='img-item' src="./../../assets/img/goods/goods5.jpg" alt="">
+            </mt-swipe-item>
+          </mt-swipe>
+          <div class='swip-badge'>
+            <span style='font-size:14px;'>{{nowShowSwipe}}</span>
+            <span style='font-size:14px;'>/</span>
+            <span style='font-size:14px'>5</span>
           </div>
         </div>
-        <!-- 商品的好评 评价部分 -->
-        <div class='goods-evaluate'>
-          <div class='goods-evaluate-proportion'>96.4%</div>
-          <p>好评率</p>
-          <p>销量 97</p>
+        <!-- 商品名称 价格介绍部分 -->
+        <div class='goods-msg-content'>
+          <!-- 商品名称 介绍 价格 -->
+          <div class='goods-name'>
+            <h3>{{goodsMsg.name}}</h3>
+            <p>{{goodsMsg.drse}}</p>
+            <div class='goods-price'>
+              <span class='goods-price-practical'>
+                <!-- <strong>拼团价</strong> -->
+                ￥<strong style='font-size:24px;'>{{goodsDetail.specs&&goodsDetail.specs.length>0?goodsDetail.specs[0].price:''}}</strong>
+              </span>
+              &nbsp;&nbsp;
+              <span style="text-decoration:line-through;"><span>单买价</span>￥{{goodsDetail.specs&&goodsDetail.specs.length>0?goodsDetail.specs[0].priceShow:''}}</span>
+            </div>
+          </div>
+          <!-- 商品的好评 评价部分 -->
+          <div class='goods-evaluate'>
+            <div class='goods-evaluate-proportion'>96.4%</div>
+            <p>好评率</p>
+            <p>销量 97</p>
+          </div>
         </div>
-      </div>
-      <div class='gray-content'></div>
-      <!-- 选择  商品规格 以及 选择收货地址的部分 -->
-      <div class='choiced-goods-num' >
-        <mt-cell
-          title="规格数量选择"
-          is-link
-          class='user-defined-mt-cell'
-          @click.native='choicedTheGoodsNum'
-          value="请选择">
-        </mt-cell>
-        <mt-cell
-          title="团购规则"
-          is-link
-          class='user-defined-mt-cell'
-          value="支持自动成团，人数不足自动退款">
-        </mt-cell>
-        <mt-cell
-          title="送至"
-          is-link
-          class='user-defined-mt-cell'
-          @click.native='choicedTheShoppingAddress'
-          value="请选择">
-        </mt-cell>
+        <div class='gray-content'></div>
+        <!-- 选择  商品规格 以及 选择收货地址的部分 -->
+        <div class='choiced-goods-num' >
+          <mt-cell
+            title="规格数量选择"
+            is-link
+            class='user-defined-mt-cell'
+            @click.native='choicedTheGoodsNum'
+            value="请选择">
+          </mt-cell>
+          <mt-cell
+            title="团购规则"
+            is-link
+            class='user-defined-mt-cell'
+            value="支持自动成团，人数不足自动退款">
+          </mt-cell>
+          <mt-cell
+            title="送至"
+            is-link
+            class='user-defined-mt-cell'
+            @click.native='choicedTheShoppingAddress'
+            value="请选择">
+          </mt-cell>
+        </div>
+        <!-- 店铺的信息 -->
+        <div class='shop-content'>
+        </div>
+        <!-- 商品详情和评论的部分 -->
+        <div v-if='showMorePicContent'></div>
       </div>
       <!-- 固定在底部的 立即购买的部分 -->
       <div class='footer'>
@@ -110,8 +125,8 @@
               <img src="./../../assets/img/goods/4.png" class='img-item' alt="">
             </div>
             <div class='goods-mg-name'>
-              <h3>文玩貔貅摆件</h3>
-              <h4>价格： ￥<strong style='font-size:18px;'>59</strong></h4>
+              <h3>{{hasChoicedSpecificationMsg.specName}}</h3>
+              <h4>价格： ￥<strong style='font-size:18px;'>{{hasChoicedSpecificationMsg.price}}</strong></h4>
               <p>
                 请选择规格参数
               </p>
@@ -121,8 +136,8 @@
           <div class='goods-specification'>
             <h4>规格</h4>
             <ul>
-              <li @click='hasChoicedSpecification=index' :class='{"active":hasChoicedSpecification==index}' v-for='(item,index) in 5' :key='index'>
-                铜制大貔貅
+              <li @click='hasChoicedSpecification=index' :class='{"active":hasChoicedSpecification==index}' v-for='(item,index) in goodsDetail.specs' :key='item.rowId'>
+                {{item.specName}}
               </li>
             </ul>
           </div>
@@ -148,11 +163,83 @@ export default {
       nowShowSwipe: 1,
       showSpecification: false,
       goodsNum: 1,
-      hasChoicedSpecification: null
+      hasChoicedSpecification: 0,
+      // 保存商品的信息
+      goodsDetail: {},
+      goodsMsg: {},
+      theChoicedNav: 3,
+      // 是否显示商品详情的部分
+      showMorePicContent: false
     }
   },
-  created () {},
+  created () {
+    this.getGoodsDetailByRowId(this.goodsId)
+    this.getGoodsDetailById(this.goodsId)
+  },
+  mounted () {
+    this.addEventListen()
+  },
   methods: {
+    // 1、通过商品ID获取商品信息
+    async getGoodsDetailByRowId (rowId) {
+      let param = {
+        rowId
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.getGoodsMsgById(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        // 成功获取到了参数
+        this.goodsMsg = result
+        console.log(this.goodsMsg)
+      }
+    },
+    // 2、通过商品ID获取商品信息
+    async getGoodsDetailById (rowId) {
+      let param = {
+        rowId
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.getGoodsDetailById(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        // 成功获取到了参数
+        this.goodsDetail = result
+        console.log(this.goodsDetail)
+      }
+    },
+    // 3、将一个商品添加至购物车
+    async saveOrderCart () {
+      if (Object.keys(this.hasChoicedSpecificationMsg).length === 0) {
+        this.Toast('请先选择规格')
+        return
+      }
+      let param = [
+        {
+          goodsId: this.goodsId,
+          specId: this.hasChoicedSpecificationMsg.rowId,
+          price: this.hasChoicedSpecificationMsg.price,
+          // 订购数量类型（0增量，1覆盖
+          amountType: 1,
+          amount: this.goodsNum
+        }
+      ]
+      this.Indicator.open()
+      let result = await this.goodsAPI.saveOrderCart(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        console.log(result)
+      }
+    },
     goBack () {
       this.$router.go(-1)
     },
@@ -175,7 +262,11 @@ export default {
     // 选择当前商品的规格以及数量
     choicedTheGoodsNum () {
       console.log('选择商品规格数量')
-      this.showSpecification = true
+      if (this.goodsDetail.specs.length > 0) {
+        this.showSpecification = true
+      } else {
+        this.Toast('改商品没有多种的规格')
+      }
     },
     // 选择当前商品的收货地址
     choicedTheShoppingAddress () {
@@ -189,12 +280,67 @@ export default {
     },
     // 立即购买
     buyImmediately () {
-      console.log('立即购买')
-      this.$router.push({name: 'ConfirmOrder', query: {'addressId': 1, 'goodsId': [{'da': 1}, {'dada': 2}], 'goodsNum': 1, 'goodsMsg': {'da': 2}}})
+      // 提交订单的时候需要传入的商品属性包括
+      // 1、订单Id rowId
+      // 2、cartId 购物车Id
+      // 3、orderId 表头ID
+      // 4、goodsId 商品Id
+      // 5、specId  规格ID
+      // 6、price   单价
+      // 7、orderNumber 订单数量
+      // 8、drsc    备注
+      let goodsList = [
+        {
+          goodsId: this.goodsId,
+          goodsName: this.goodsMsg.name,
+          price: this.hasChoicedSpecificationMsg ? this.hasChoicedSpecificationMsg.price : '',
+          priceShow: this.hasChoicedSpecificationMsg ? this.hasChoicedSpecificationMsg.priceShow : '',
+          orderNumber: this.goodsNum,
+          specId: this.hasChoicedSpecificationMsg ? this.hasChoicedSpecificationMsg.rowId : '',
+          goodsSpecsName: this.hasChoicedSpecificationMsg ? this.hasChoicedSpecificationMsg.specName : '',
+          drsc: ''
+        }
+      ]
+      let allGoodsList = [{
+        shopName: this.goodsMsg.shopName,
+        shopId: this.goodsMsg.shopId,
+        carts: goodsList
+      }]
+      console.log(allGoodsList)
+      allGoodsList = JSON.stringify(allGoodsList)
+      this.$router.push({name: 'ConfirmOrder', query: {'addressId': 35378, 'allGoodsList': allGoodsList}})
     },
     // 加入购物车
     addToShoppingCard () {
-      this.Toast('加入购物车')
+      this.saveOrderCart()
+    },
+    // 手机监听滑动到底部的事件
+    addEventListen () {
+      window.addEventListener('scroll', this.aa)
+    },
+    aa () {
+      // 当前body 滚动的y轴的距离
+      // console.log(window.scrollY)
+      // 当前框子的高度
+      // console.log(window.innerHeight)
+      // 当前body的总高度
+      // console.log(document.body.clientHeight)
+      if (window.scrollY + window.innerHeight >= document.body.clientHeight) {
+        console.log('滚动到了底部')
+        this.showMorePicContent = true
+      }
+    }
+  },
+  computed: {
+    goodsId () {
+      return this.$route.params.goodsId
+    },
+    hasChoicedSpecificationMsg () {
+      if (this.goodsDetail.specs.length > 0) {
+        return this.goodsDetail.specs[this.hasChoicedSpecification]
+      } else {
+        return {}
+      }
     }
   }
 }
@@ -203,74 +349,140 @@ export default {
 <style scoped lang='stylus'>
 @import './../../assets/css/base-style.styl'
 .page{
-  .swip-content{
-    height:355px;
-    position relative
-    .swip-badge{
-      position absolute;
-      bottom:1rem;
-      right:1rem;
+  .main-content{
+    overflow:hidden;
+    .header-nav{
+      width:100%;
+      height:40px;
       background:#fff;
-      width:32px;
-      height:18px;
-      border-radius 10px;
-      color:#333;
-      font-size:0px
-      line-height 18px
+      position:fixed;
+      top:40px;
+      z-index 10;
+      &>ul{
+        width:180px;
+        height:26px;
+        margin:6px auto;
+        list-style:none;
+        // border:1px solid #DED7D7;
+        border-radius:5px;
+        font-size:0px;
+        display: flex;
+        &>li{
+          font-size:14px;
+          display:inline-block;
+          line-height 24px;
+          width:60px;
+          >a{
+            color:#9b9b9b;
+            text-decoration: none;
+            display:inline-block;
+            width:100%;
+            height:100%;
+            border-top:1px solid #DED7D7;
+            border-bottom:1px solid #DED7D7;
+            &.active{
+              color:#fff;
+              background:$base-color;
+              border-color:$base-color;
+            }
+          }
+          &:first-child{
+            >a{
+              border-right:1px solid #DED7D7
+              border-left:1px solid #DED7D7;
+              border-bottom-left-radius: 5px;
+              border-top-left-radius: 5px;
+            }
+          }
+          &:last-child{
+            >a{
+              border-left:1px solid #DED7D7
+              border-right:1px solid #DED7D7;
+              border-bottom-right-radius: 5px;
+              border-top-right-radius: 5px;
+            }
+          }
+        }
+      }
+      &:before{
+        content:'';
+        display table;
+      }
     }
-  }
-  .goods-msg-content{
-    font-size:0px;
-    .goods-name{
-      width:70%;
-      display inline-block
-      text-align left;
-      padding-left:1rem;
-      box-sizing: border-box;
-      h3{
-        font-size:20px;
-        line-height 36px;
+    .showMorePicContent{
+      margin-top:40px;
+    }
+    .swip-content{
+      height:355px;
+      position relative
+      .swip-badge{
+        position absolute;
+        bottom:1rem;
+        right:1rem;
+        background:#fff;
+        width:32px;
+        height:18px;
+        border-radius 10px;
+        color:#333;
+        font-size:0px
+        line-height 18px
       }
-      p{
-        font-size:12px;
-        color:#9B9B9B;
-        line-height 24px;
+    }
+    .goods-msg-content{
+      font-size:0px;
+      background:#fff;
+      .goods-name{
+        width:70%;
+        display inline-block
+        text-align left;
+        padding-left:1rem;
+        box-sizing: border-box;
+        h3{
+          font-size:20px;
+          line-height 36px;
+        }
+        p{
+          font-size:12px;
+          color:#9B9B9B;
+          line-height 24px;
+        }
+        .goods-price{
+          color:#aaa
+          font-size:12px;
+          line-height 40px
+          .goods-price-practical{
+            color:$base-color;
+            font-size:16px;
+          }
+        }
       }
-      .goods-price{
-        color:#aaa
+      .goods-evaluate{
+        width:30%;
+        display inline-block;
         font-size:12px;
-        line-height 40px
-        .goods-price-practical{
-          color:$base-color;
-          font-size:16px;
+        color:#aaa;
+        vertical-align:top;
+        background:url('./../../assets/img/addMore.png') no-repeat;
+        background-position:90% 20px
+        background-size:12px 20px
+        .goods-evaluate-proportion{
+          font-size:20px;
+          line-height 36px;
+        }
+        p{
+          line-height:20px;
+          &:last-child{
+            line-height 50px
+          }
         }
       }
     }
-    .goods-evaluate{
-      width:30%;
-      display inline-block;
-      font-size:12px;
-      color:#aaa;
-      vertical-align:top;
-      background:url('./../../assets/img/addMore.png') no-repeat;
-      background-position:90% 20px
-      background-size:12px 20px
-      .goods-evaluate-proportion{
-        font-size:20px;
-        line-height 36px;
-      }
-      p{
-        line-height:20px;
-        &:last-child{
-          line-height 50px
-        }
+    .choiced-goods-num{
+      text-align:left;
+      .user-defined-mt-cell{
+        padding-left:1.5rem;
       }
     }
-  }
-  .choiced-goods-num{
-    text-align:left;
-    padding-left: 15px;
-    margin-bottom:50px;
   }
   .footer{
     position fixed;
@@ -294,6 +506,7 @@ export default {
           box-sizing border-box;
           border-right:1px solid #eee;
           position relative
+          text-align:center;
           >img{
             width:20px;
             height:18px;
@@ -453,11 +666,11 @@ export default {
       }
     }
   }
-    .fade-enter-active, .fade-leave-active {
-      transition: opacity 1s;
-    }
-    .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-      opacity: 0;
-    }
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity 1s;
+  }
+  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
 }
 </style>

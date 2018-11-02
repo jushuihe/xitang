@@ -15,46 +15,25 @@
     <!-- 左边的分类导航部分 一级分类 -->
     <aside class='left-nav'>
       <ul class='left-nav-ul'>
-        <li :class='{"active":nowActiveNav==0}'  @click='changeTheActiveNav(0)'>
+        <li :class='{"active":nowActiveNav === "default"}'  @click='changeTheActiveNav(0)'>
           <span>推荐分类</span>
         </li>
-        <li v-for='item in 10' :class='{"active":nowActiveNav==item}'  @click='changeTheActiveNav(item)' :key='item'>
-          <span>商品</span>
+        <li v-for='(item, index) in catalogList' :class='{"active":nowActiveNav == item.rowId}'  @click='changeTheActiveNav(item, index)' :key='item.rowId'>
+          <span>{{item.name}}</span>
         </li>
       </ul>
     </aside>
-    <!-- 二级分类页面 -->
-    <div class='second-level' id='secondLevel' v-if='showSecondLevelNav'>
-      <ul class='second-level-ul'>
-        <li v-for='item in 10' :key='item'>
-          <span>分类{{item}}</span>
-        </li>
-      </ul>
-    </div>
-    <!-- 这里设置一个遮罩层  当没有选择二级分类的时候 关掉二级分类的部分 -->
-    <div class='second-level-shade' v-if='showSecondLevelNav' @click='showSecondLevelNav=false'></div>
     <!-- 右边的主要内容页面 -->
     <section class='right-content'>
       <div class='right-content-header-img'>
         <img class='img-item' src="./../../assets/img/goods/1.png" alt="">
       </div>
       <div class='classify-item'>
-        <header class='classify-item-title'>
-          ----推荐分类----
-        </header>
-        <section class='classify-item-content'>
-          <dl class='classify-item-content-item' @click='toGoodDetail(item)' v-for='item in 15' :key='item'>
-            <dt>
-              <img class='img-item' src="./../../assets/img/goods/3.png" alt="">
-            </dt>
-            <dd>
-              二佛对坐雕刻杯
-            </dd>
-          </dl>
-        </section>
-      </div>
-      <div class='show-the-last-content'>
-        <h4>没有更多了~</h4>
+        <ul>
+          <li v-for='item in catalogListSecond'  @click='changeTheSecondLevel(item)' :key='item.rowId'>
+            <span>{{item.name}}</span>
+          </li>
+        </ul>
       </div>
     </section>
   </div>
@@ -65,34 +44,79 @@ export default {
   name: 'classification',
   data () {
     return {
-      nowActiveNav: 0,
-      showSecondLevelNav: false
+      nowActiveNav: 'default',
+      showSecondLevelNav: false,
+      // 第一级的目录导航
+      catalogList: [],
+      // 第二级的目录列表
+      catalogListSecond: [],
+      catalogListTree: []
     }
   },
-  created () {},
+  created () {
+    this.getGoodsCatalogList()
+    this.goodsCatalogTree()
+  },
   methods: {
+    // 1、获取目录列表
+    async getGoodsCatalogList () {
+      let param = {
+        parentId: null
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.getGoodsCatalogList(param)
+      // 现在dealResult方法需要传入第二个参数this，用来调用this的方法
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      console.log(result)
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        // 成功获取到了参数
+        this.catalogList = result
+        if (this.catalogList.length === 0) {
+          this.Toast('当前的目录的数据为空')
+        } else {
+        }
+      }
+    },
+    // 2、获取全部的目录树状结构
+    async goodsCatalogTree () {
+      let param = {}
+      this.Indicator.open()
+      let result = await this.goodsAPI.goodsCatalogTree(param)
+      // 现在dealResult方法需要传入第二个参数this，用来调用this的方法
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      console.log(result)
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        // 成功获取到了参数
+        this.catalogListTree = result
+        if (this.catalogListTree.length === 0) {
+          this.Toast('当前的目录树的数据为空')
+        } else {
+          this.catalogListSecond = this.catalogListTree[0].children
+        }
+      }
+    },
     // 跳转到商品详情页面
     toGoodDetail (item) {
       this.$router.push({name: 'goodsDetail', params: {goodsId: item}})
     },
     // 切换当前显示的分类地址
-    changeTheActiveNav (item) {
-      this.nowActiveNav = item
-      if (item !== 0) {
-        this.showSecondLevelNav = true
-        this.$nextTick(() => {
-          if (item < 9) {
-            document.getElementById('secondLevel').style.top = 40 + item * 36 + 'px'
-            document.getElementById('secondLevel').style.bottom = 'auto'
-          } else {
-            let windowHeight = window.screen.height
-            document.getElementById('secondLevel').style.bottom = windowHeight - ((item + 1) * 36 + 40) + 'px'
-            document.getElementById('secondLevel').style.top = 'auto'
-          }
-        })
+    changeTheActiveNav (item, index) {
+      if (item === 0) {
+        this.nowActiveNav = 'default'
       } else {
-        this.showSecondLevelNav = false
+        this.nowActiveNav = item.rowId
+        this.catalogListSecond = this.catalogListTree[index].children
       }
+    },
+    // 跳转到分类搜索的页面
+    changeTheSecondLevel (item, index) {
+      this.$router.push({name: 'ClassificationGoodsList', params: {'classificationId': item.rowId}})
     }
   }
 }
@@ -101,7 +125,6 @@ export default {
 <style scoped lang='stylus'>
 @import './../../assets/css/base-style.styl'
 .classification-page{
-  height:100vh;
   // 头部搜索部分
   .base-header{
     width:100%;
@@ -232,6 +255,7 @@ export default {
     width:100%;
     box-sizing border-box
     padding:9px;
+    min-height: 84vh;
     padding-left:90px+@padding;
     padding-bottom:50px+@padding;
     background:#fff;
@@ -240,31 +264,14 @@ export default {
       height:16vh;
     }
     .classify-item{
-      .classify-item-title{
-        font-size: 14px;
-        color: #999;
-        line-height: 24px;
-        margin-top: 10px;
-      }
-      .classify-item-content{
-        display flex;
-        flex-wrap:wrap;
-        justify-content:space-between;
-        width:100%;
-
-        .classify-item-content-item{
-          width:31%;
-          margin-top:2vh;
-          >dt{
-            height: 7rem;
-          }
-          >dd{
-            font-size: 12px;
-            line-height 16px;
-            color: $base-undertint-font-color;
-            text-align: left;
-            margin-top:6px;
-          }
+      &>ul{
+        padding:1rem;
+        text-align:left;
+        li{
+          display: inline-block;
+          font-size: 15px;
+          line-height: 30px;
+          padding: 0 1rem;
         }
       }
     }

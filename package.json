@@ -11,7 +11,9 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "mint-ui": "^2.2.13",
+    "pingpp-js": "^2.2.6",
     "vue": "^2.5.2",
     "vue-indicator": "0.0.7",
     "vue-msgbox": "^0.2.14",

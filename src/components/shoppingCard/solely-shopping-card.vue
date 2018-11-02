@@ -30,7 +30,7 @@
         </dl>
       </div>
     </div>
-    <div class='goods-list' v-if='goodsList.length > 0' style='margin-top:40px;'>
+    <div class='main-content goods-list' v-if='goodsList.length > 0'>
       <goods-list :goodsList='goodsList' :showDeleteBtn='showDeleteBtn' @deleteTheGoods='deleteTheGoods' @changeTheSelectedState='changeTheSelectedState' @reduceTheGoods='reduceTheGoods' @addTheGoods='addTheGoods'></goods-list>
       <!-- 全选和结算的部分 -->
       <div class='selectAll'>
@@ -44,7 +44,7 @@
           <strong style='font-size:12px;'>￥</strong>
           {{totalPrice}}
         </span>
-        <button class='settleAccounts' @click='settleBtn'>去结算({{goodsList.length}})</button>
+        <button class='settleAccounts' @click='settleBtn'>去结算({{choicedGoodsLength}})</button>
       </div>
     </div>
   </div>
@@ -56,20 +56,82 @@ export default {
   name: 'baseGroup',
   data () {
     return {
-      goodsList: [
-        {goodsId: 1, goodsName: '商品1', goodsPrice: '666', goodsImg: './../../../assets/img/goods/3.png', num: 1, selected: false},
-        {goodsId: 2, goodsName: '商品2', goodsPrice: '888', goodsImg: './../../../assets/img/goods/4.png', num: 2, selected: false}
-      ],
+      goodsList: [],
       isSelectAll: false,
       // 点击编辑按钮的时候显示或隐藏删除按钮
-      showDeleteBtn: false
+      showDeleteBtn: false,
+      timeoutId: 1
     }
   },
   components: {
     goodsList
   },
-  created () {},
+  created () {
+    this.getOrderCartList()
+  },
   methods: {
+    // 1、获取当前用户的购物车列表
+    async getOrderCartList () {
+      let param = {}
+      this.Indicator.open()
+      let result = await this.goodsAPI.getOrderCartList(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        this.goodsList = result
+        console.log(this.goodsList)
+      }
+    },
+    // 2、新增/修改购物车商品
+    async saveOrderCart () {
+      let arrAll = []
+      this.goodsList.forEach(item1 => {
+        arrAll = [...item1.carts.map(item => {
+          let obj = {}
+          obj.rowId = item.rowId
+          obj.goodsId = item.goodsId
+          obj.specId = item.specId
+          obj.price = item.price
+          obj.amount = item.amount
+          obj.amountType = 1
+          return obj
+        }), ...arrAll]
+      })
+      let param = arrAll
+      let result = await this.goodsAPI.saveOrderCart(param)
+      result = this.show.dealResult(result, this)
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        // 采用延时搜素的方式
+        clearTimeout(this.timeoutId)
+        this.timeoutId = setTimeout(() => {
+          this.nowPage = 1
+          this.getOrderCartList()
+        }, 1000)
+      }
+    },
+    // 3、删除购物车商品
+    async removeOrderCart (goodsId) {
+      let param = {
+        ids: [goodsId]
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.removeOrderCart(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result) {
+        if (result.err === 'warning') {
+          this.Toast(result.message)
+        } else {
+          this.getOrderCartList()
+        }
+      } else {
+        this.getOrderCartList()
+      }
+    },
     editorShopCard () {
       console.log('编辑购物车')
       this.showDeleteBtn = !this.showDeleteBtn
@@ -81,14 +143,59 @@ export default {
       this.$router.push({name: 'goodsDetail', params: {goodsId: item}})
     },
     settleBtn () {
-      this.Toast('结算')
+      // 在确认订单页面需要将不同的店铺的订单分开  所以这里需要改变数据结构  以店铺为集合
+      // 这里需要跳转到订单确认页面
+      if (this.choicedGoodsLength === 0) {
+        return
+      }
+      let goodsList = this.goodsList.map(item => {
+        if (
+          item.carts.some(item => {
+            if (item.selected) return true
+            else return false
+          })
+        ) {
+          let obj = {}
+          obj.shopName = item.shopName
+          obj.shopId = item.rowId
+          obj.carts = item.carts.map(item1 => {
+            if (item1.selected) {
+              let obj = {}
+              obj.goodsId = item1.goodsId
+              obj.goodsName = item1.goodsName
+              obj.specId = item1.specId
+              obj.price = item1.price
+              obj.priceShow = item1.priceShow
+              obj.orderNumber = item1.amount
+              obj.goodsSpecsName = item1.goodsSpec
+              obj.drsc = ''
+              return obj
+            } else {
+              return {}
+            }
+          })
+          return obj
+        } else {
+          return {}
+        }
+      })
+      console.log(goodsList)
+      goodsList = JSON.stringify(goodsList)
+      this.$router.push({name: 'ConfirmOrder', query: {'addressId': 35378, 'allGoodsList': goodsList}})
     },
-    changeTheSelectedState (index) {
-      let obj = this.goodsList[index]
+    changeTheSelectedState (index, index1) {
+      let obj1 = this.goodsList[index1]
+      let arr = obj1.carts
+      let obj = arr[index]
       obj.selected = !obj.selected
-      this.goodsList.splice(index, 1, obj)
+      arr.splice(index, 1, obj)
+      this.goodsList.splice(index1, 1, obj1)
       if (this.goodsList.some(item => {
-        if (!item.selected) return true
+        if (item.carts.some(item1 => {
+          if (!item1.selected) return true
+        })) {
+          return true
+        }
       })) {
         this.isSelectAll = false
       } else {
@@ -99,42 +206,48 @@ export default {
       this.isSelectAll = !this.isSelectAll
       if (this.isSelectAll) {
         this.goodsList.forEach((item, index) => {
-          item.selected = true
+          item.carts.forEach((item1, index1) => {
+            item1.selected = true
+            item.carts.splice(index1, 1, item1)
+          })
           this.goodsList.splice(index, 1, item)
         })
       } else {
         this.goodsList.forEach((item, index) => {
-          item.selected = false
+          item.carts.forEach((item1, index1) => {
+            item1.selected = false
+            item.carts.splice(index1, 1, item1)
+          })
           this.goodsList.splice(index, 1, item)
         })
       }
     },
     // 减少数量
-    reduceTheGoods (index) {
-      let obj = this.goodsList[index]
-      if (obj.num > 1) {
-        obj.num--
+    reduceTheGoods (index, index1) {
+      console.log(index, index1)
+      let obj = this.goodsList[index1].carts[index]
+      if (obj.amount > 1) {
+        obj.amount--
       }
-      this.goodsList.splice(index, 1, obj)
+      this.saveOrderCart()
     },
     // 增加数量
-    addTheGoods (index) {
-      let obj = this.goodsList[index]
-      if (obj.num) {
-        obj.num++
+    addTheGoods (index, index1) {
+      let obj = this.goodsList[index1].carts[index]
+      if (obj.amount) {
+        obj.amount++
       } else {
-        obj.num = 1
+        obj.amount = 1
       }
-      this.goodsList.splice(index, 1, obj)
+      this.saveOrderCart()
     },
     // 删除当前商品
-    deleteTheGoods (index) {
+    deleteTheGoods (item) {
       this.MessageBox.confirm('确定执行此操作?').then(action => {
-        this.goodsList.splice(index, 1)
+        this.removeOrderCart(item.goodsId)
       }).catch(data => {
         console.log(2)
       })
-      console.log('删除')
     },
     goBack () {
       this.$router.go(-1)
@@ -145,11 +258,28 @@ export default {
   computed: {
     totalPrice () {
       let total = 0
-      this.goodsList.forEach(item => {
-        if (item.selected) total += (Number(item.goodsPrice) * Number(item.num))
-      })
+      if (this.goodsList.length > 0) {
+        this.goodsList.forEach(item => {
+          if (item.carts.length > 0) {
+            item.carts.forEach(item1 => {
+              if (item1.selected) total += (Number(item1.price) * Number(item1.amount))
+            })
+          }
+        })
+      }
       total = parseFloat(total).toFixed(2)
       return total
+    },
+    choicedGoodsLength () {
+      let num = 0
+      this.goodsList.forEach(item => {
+        item.carts.forEach(item1 => {
+          if (item1.selected) {
+            num++
+          }
+        })
+      })
+      return num
     }
   }
 }

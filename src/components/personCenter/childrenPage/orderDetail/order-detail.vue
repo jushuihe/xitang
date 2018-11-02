@@ -9,20 +9,20 @@
       <div class='main-content'>
         <!-- 订单状态 -->
         <div class='main-content-title'>
-          <span v-if='orderType==1'>代付款</span>
-          <span v-if='orderType==2'>代收货</span>
-          <span v-if='orderType==3'>退款售后</span>
-          <span v-if='orderType==4'>已收货</span>
+          <span v-if='orderType==0'>代付款</span>
+          <span v-if='orderType == 1 || orderType == 2'>待收货</span>
+          <span v-if='afterSalesFlag==3'>退款售后</span>
+          <span v-if='orderType==3'>已收货</span>
           <div class='main-content-title-img'>
-            <img class='img-item' v-if='orderType==1' src="./../../../../assets/img/order/step1.png">
-            <img class='img-item' v-if='orderType==2' src="./../../../../assets/img/order/step2.png">
-            <img class='img-item' v-if='orderType==3' src="./../../../../assets/img/order/step3.png">
-            <img class='img-item' v-if='orderType==4' src="./../../../../assets/img/order/step4.png">
+            <img class='img-item' v-if='orderType == 0' src="./../../../../assets/img/order/step1.png">
+            <img class='img-item' v-if='orderType == 1 || orderType==2' src="./../../../../assets/img/order/step2.png">
+            <img class='img-item' v-if='afterSalesFlag==3' src="./../../../../assets/img/order/step3.png">
+            <img class='img-item' v-if='orderType == 3' src="./../../../../assets/img/order/step4.png">
           </div>
         </div>
         <div class='gray-content'></div>
         <!-- 退款的流程信息 -->
-        <div class='refund-flow-path' v-if='orderType == 3'>
+        <div class='refund-flow-path' v-if='afterSalesFlag == 1'>
           <p>
             退款118.00元已完成，已退回您的账户
           </p>
@@ -63,7 +63,7 @@
         <div class='goods-msg'>
           <div class='goods-msg-logistics'>
             <span>订单编号：</span>
-            <span>201803249521</span>
+            <span>{{orderDetail.orderNo ? orderDetail.orderNo : ''}}</span>
             <span class='contactTheServer' @click='contactTheServer'>
               联系客服
             </span>
@@ -96,25 +96,28 @@
           <div class='logistics-msg-content'>
             <p>
               <span class='item-title'>订单编号:</span>
-              <span class='item-content'>20184749174</span>
+              <span class='item-content'>{{orderDetail.orderNo ? orderDetail.orderNo : ''}}</span>
             </p>
             <p>
               <span class='item-title'>下单时间:</span>
-              <span class='item-content'>2018-05-24 22:32:43</span>
+              <span class='item-content'>{{orderDetail.subTime ? orderDetail.subTime : ''}}</span>
             </p>
             <p>
               <span class='item-title'>支付方式:</span>
-              <span class='item-content'>未支付</span>
+              <span class='item-content' v-if='orderDetail.payFlag==0'>未付款</span>
+              <span class='item-content' v-if='orderDetail.payFlag==1 && orderDetail.payMethod==0'>余额支付</span>
+              <span class='item-content' v-if='orderDetail.payFlag==1 && orderDetail.payMethod==1'>支付宝</span>
+              <span class='item-content' v-if='orderDetail.payFlag==1 && orderDetail.payMethod==2'>微信</span>
             </p>
             <p>
               <span class='item-title'>支付时间:</span>
-              <span class='item-content'>2018-05-24 22:32:43</span>
+              <span class='item-content'>{{orderDetail.payTime ? orderDetail.payTime : ''}}</span>
             </p>
           </div>
           <!-- 收货地址 -->
           <div class='logistics-msg-address'>
-            <h3>吕小布  &nbsp;&nbsp; 1862777777</h3>
-            <p>地址：湖北省 武汉市 洪山区 关谷一路 湖口一路 湖口社区</p>
+            <h3>{{orderDetail.receiveContact ? orderDetail.receiveContact : ''}}  &nbsp;&nbsp; {{orderDetail.receivePhone ? orderDetail.receivePhone : ''}}</h3>
+            <p>地址：{{orderDetail.receiveAddress ? orderDetail.receiveAddress : ''}}</p>
           </div>
           <!-- 订单金额 -->
           <div class='logistics-msg-money'>
@@ -122,7 +125,7 @@
               <div class='item-title'>
                 商品金额：
               </div>
-              <strong class='item-value'>￥118.00</strong>
+              <strong class='item-value'>￥{{orderDetail.totalPrice ? orderDetail.totalPrice : ''}}</strong>
             </div>
             <div class='logistics-msg-money-item'>
               <div class='item-title'>
@@ -132,19 +135,19 @@
             </div>
           </div>
         </div>
-        <div class='refund-money' v-if='orderType == 3'>
+        <div class='refund-money' v-if='afterSalesFlag == 1'>
           退款总金额：
-          <strong class='total-price'>￥118.00</strong>
+          <strong class='total-price'>￥{{orderDetail.totalPrice ? orderDetail.totalPrice : ''}}</strong>
         </div>
         <div class='gray-content'></div>
       </div>
       <div class='footer' v-if='orderType!=3'>
-        <mt-button v-if='orderType==1' @click.native='cancelTheOrder' type='default' class='footer-btn' size='small'>取消支付</mt-button>
-        <mt-button v-if='orderType==1' @click.native='payTheOrder' type='primary' class='footer-btn base-color-btn' size='small'>付款 30:24</mt-button>
-        <mt-button v-if='orderType==2' @click.native='checkTheLogistics' type='default' class='footer-btn' size='small'>查看物流</mt-button>
-        <mt-button v-if='orderType==2' @click.native='confirmGetGoods' type='primary' class='footer-btn base-color-btn' size='small'>确认收货</mt-button>
-        <mt-button v-if='orderType==4' @click.native='buyAgainTheOrder' type='default' class='footer-btn' size='small'>再次购买</mt-button>
-        <mt-button v-if='orderType==4' @click.native='evaluateTheOrder' type='default' class='footer-btn base-color-border' size='small'>评价此单</mt-button>
+        <mt-button v-if='orderType == 0' @click.native='cancelTheOrder' type='default' class='footer-btn' size='small'>取消支付</mt-button>
+        <mt-button v-if='orderType == 0' @click.native='payTheOrder' type='primary' class='footer-btn base-color-btn' size='small'>付款 30:24</mt-button>
+        <mt-button v-if='orderType == 2' @click.native='checkTheLogistics' type='default' class='footer-btn' size='small'>查看物流</mt-button>
+        <mt-button v-if='orderType == 1' @click.native='confirmGetGoods' type='primary' class='footer-btn base-color-btn' size='small'>确认收货</mt-button>
+        <mt-button v-if='orderType == 3 || orderType == 4' @click.native='buyAgainTheOrder' type='default' class='footer-btn' size='small'>再次购买</mt-button>
+        <mt-button v-if='orderType == 3 || orderType == 4' @click.native='evaluateTheOrder' type='default' class='footer-btn base-color-border' size='small'>评价此单</mt-button>
       </div>
   </div>
 </template>
@@ -154,20 +157,69 @@ export default {
   name: 'coupon',
   data () {
     return {
-      orderType: 2,
       // 退款售后的流程
-      nowRefundPath: 1
+      nowRefundPath: 1,
+      // 用来保存当前订单的详细信息
+      orderDetail: {}
     }
   },
-  created () {},
+  created () {
+    this.getOrderDetailById()
+  },
   methods: {
+    // 1、通过订单表ID获取订单详情
+    async getOrderDetailById () {
+      let param = {
+        rowId: this.orderId
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.getOrderDetailById(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        this.orderDetail = result
+        console.log(this.orderDetail)
+      }
+    },
+    // 2、取消订单
+    async deleteOrderById () {
+      let param = {
+        rowId: Number(this.orderId)
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.deleteOrderById(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        console.log(result)
+      }
+    },
+    // 3、确认收货的接口
+    async deliveryCheckOrderById () {
+      let param = {
+        rowId: Number(this.orderId)
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.deliveryCheckOrderById(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        console.log(result)
+      }
+    },
     goBack () {
       this.$router.go(-1)
     },
     // 取消订单的按钮事件
     cancelTheOrder () {
       this.MessageBox.confirm('确定取消订单？').then(action => {
-        console.log('取消订单')
+        this.deleteOrderById()
       }).catch(() => {
         console.log('取消')
       })
@@ -175,8 +227,7 @@ export default {
     // 付款的按钮事件
     payTheOrder () {
       // 这里可能是跳转到 支付页面 也可能是跳到确认支付页面
-      // this.$router.push({name: 'PayOrder', params: {orderId: 1}})
-      this.$router.push({name: 'ConfirmOrder', params: {orderId: 1}})
+      this.$router.push({name: 'PayOrder', params: {orderId: this.orderId}})
     },
     // 联系客服
     contactTheServer () {
@@ -185,16 +236,17 @@ export default {
     // 查看物流的按钮事件
     checkTheLogistics () {
       console.log('查看物流')
-      this.$router.push({name: 'LogisticsPage', params: {goodsId: 1}})
+      this.$router.push({name: 'LogisticsPage', params: {goodsId: this.orderId}})
     },
     // 确认收货的按钮事件
     confirmGetGoods () {
       console.log('确认收货')
+      this.deliveryCheckOrderById()
       // 调用接口
     },
     // 评价此单
     evaluateTheOrder () {
-      this.$router.push({name: 'EvaluateGoods', params: {goodsId: 1}})
+      this.$router.push({name: 'EvaluateGoods', params: {goodsId: this.orderId}})
     },
     buyAgainTheOrder () {
       this.Toast('再次购买')
@@ -209,8 +261,14 @@ export default {
     }
   },
   computed: {
-    goodsId () {
-      return this.$router.params.goodsId
+    orderId () {
+      return this.$route.params.goodsId
+    },
+    orderType () {
+      return this.orderDetail.orderStatus
+    },
+    afterSalesFlag () {
+      return this.orderDetail.afterSalesFlag
     }
   }
 }

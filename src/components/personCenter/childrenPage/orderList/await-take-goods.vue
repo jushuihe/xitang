@@ -11,7 +11,7 @@
         </div>
         <div class='orderList'  v-if='awaitTakeGoodsOrderList.length>0'>
             <div class='orderListContent'>
-                <div class='order-list-content-item' v-for='item in awaitTakeGoodsOrderList' :key='item.orderType+"2"'>
+                <div class='order-list-content-item' v-for='item in awaitTakeGoodsOrderList' :key='item.orderNo'>
                     <h4 class='order-list-content-item-header'>订单编号：
                         <span>201803249521</span>
                         <strong class='order-type'>代付款</strong>
@@ -35,18 +35,55 @@
                     </ul>
                     <div class='order-list-content-item-footer'>
                         <div class='total-price'>
-                            <span v-if='item.orderType==1'>应付：</span>
-                            <span v-if='item.orderType==4'>退款金额：</span>
-                            <span v-if='item.orderType==4 || item.orderType==1' class='goods-price'><strong style='font-size:12px'>￥</strong>118.00</span>
+                            <span v-if='item.orderStatus==1'>应付：</span>
+                            <span v-if='item.orderStatus==4'>退款金额：</span>
+                            <span v-if='item.orderStatus==4 || item.orderStatus==1' class='goods-price'><strong style='font-size:12px'>￥</strong>118.00</span>
                         </div>
                         <div class='operation-btn'>
-                            <mt-button type="default" class='operation-btn-default' v-if='item.orderType==1' size='small'>取消</mt-button>
-                            <mt-button type="default" class='operation-btn-full-color' v-if='item.orderType==1' size='small'>付款</mt-button>
-                            <mt-button type="default" class='operation-btn-default' v-if='item.orderType==2' size='small'>查看物流</mt-button>
-                            <mt-button type="default" class='operation-btn-outline-color' v-if='item.orderType==2' size='small'>确认收货</mt-button>
-                            <mt-button type="default" class='operation-btn-default' v-if='item.orderType==3' size='small'>再次购买</mt-button>
-                            <mt-button type="default" class='operation-btn-default' v-if='item.orderType==3' size='small'>评价此单</mt-button>
-                            <mt-button type="default" class='operation-btn-outline-color' v-if='item.orderType==3' size='small'>退换/售后</mt-button>
+                            <mt-button type="default" class='operation-btn-default' v-if='item.orderStatus==1' size='small'>取消</mt-button>
+                            <mt-button type="default" class='operation-btn-full-color' v-if='item.orderStatus==1' size='small'>付款</mt-button>
+                            <mt-button type="default" class='operation-btn-default' v-if='item.orderStatus==2' size='small'>查看物流</mt-button>
+                            <mt-button type="default" class='operation-btn-outline-color' v-if='item.orderStatus==2' size='small'>确认收货</mt-button>
+                            <mt-button type="default" class='operation-btn-default' v-if='item.orderStatus==3' size='small'>再次购买</mt-button>
+                            <mt-button type="default" class='operation-btn-default' v-if='item.orderStatus==3' size='small'>评价此单</mt-button>
+                            <mt-button type="default" class='operation-btn-outline-color' v-if='item.orderStatus==3' size='small'>退换/售后</mt-button>
+                        </div>
+                    </div><h4 class='order-list-content-item-header'>订单编号：
+                        <span>{{item.orderNo}}</span>
+                        <strong class='order-type' v-if='item.payFlag === 0'>未付款</strong>
+                        <strong class='order-type' v-if='item.payFlag === 1'>已付款</strong>
+                    </h4>
+                    <ul class='order-list-content-item-content'>
+                        <li class='goods-item' v-for='item1 in 4' :key='item1'>
+                            <div class='goods-item-img'>
+                                <img class='img-item' src="./../../../../assets/img/goods/4.png" alt="">
+                            </div>
+                            <div class='goods-item-msg'>
+                                <h4 class='goods-item-msg-name'>
+                                    文玩铜锈貔貅摆件
+                                    <span class='goods-price'><strong style='font-size:12px;'>￥</strong>59</span>
+                                </h4>
+                                <div class='guige'>
+                                    规格：铜制小貔貅
+                                    <span class='num'>x1</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class='order-list-content-item-footer'>
+                        <div class='total-price'>
+                            <span v-if='item.orderStatus == 0'>应付：</span>
+                            <span v-if='item.afterSalesFlag == 1'>退款金额：</span>
+                            <span v-if='item.afterSalesFlag == 1 || item.orderStatus == 0' class='goods-price'><strong style='font-size:12px'>￥</strong>{{item.totalPrice}}</span>
+                        </div>
+                        <div class='operation-btn'>
+                            <mt-button type="default" @click.native='cancelTheOrder(item)' class='operation-btn-default' v-if='item.orderStatus == 0' size='small'>取消</mt-button>
+                            <mt-button type="default" @click.native='payTheOrder(item)' class='operation-btn-full-color' v-if='item.orderStatus == 0' size='small'>付款</mt-button>
+                            <mt-button type="default" @click.native='confirmTheOrder(item)' class='operation-btn-outline-color' v-if='item.orderStatus == 1' size='small'>确认收货</mt-button>
+                            <mt-button type="default" @click.native='checkTheOrderLogistics(item)' class='operation-btn-default' v-if='item.orderStatus == 2' size='small'>查看物流</mt-button>
+                            <mt-button type="default" @click.native='buyTheOrderAgain(item)' class='operation-btn-default' v-if='item.orderStatus == 3 || item.orderStatus == 4' size='small'>再次购买</mt-button>
+                            <mt-button type="default" @click.native='evaluateTheOrder(item)' class='operation-btn-default' v-if='item.orderStatus == 3 || item.orderStatus == 4' size='small'>评价此单</mt-button>
+                            <mt-button type="default" @click.native='afterSaleTheOrder(item)' class='operation-btn-outline-color' v-if='item.orderStatus == 3 || item.orderStatus == 4' size='small'>退换/售后</mt-button>
                         </div>
                     </div>
                     <div class='gray-content'></div>
@@ -62,6 +99,11 @@ export default {
   name: '',
   data () {
     return {}
+  },
+  methods: {
+    toHome () {
+      this.$router.push({name: 'Home'})
+    }
   }
 }
 </script>
