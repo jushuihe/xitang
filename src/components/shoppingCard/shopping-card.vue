@@ -110,9 +110,9 @@ export default {
       }
     },
     // 3、删除购物车商品
-    async removeOrderCart (goodsId) {
+    async removeOrderCart (rowId) {
       let param = {
-        ids: [goodsId]
+        ids: [rowId]
       }
       this.Indicator.open()
       let result = await this.goodsAPI.removeOrderCart(param)
@@ -166,6 +166,8 @@ export default {
               obj.orderNumber = item1.amount
               obj.goodsSpecsName = item1.goodsSpec
               obj.drsc = ''
+              // 能加入购物车的商品都是线上的商品
+              obj.isOnline = 1
               return obj
             } else {
               return {}
@@ -245,7 +247,7 @@ export default {
     // 删除当前商品
     deleteTheGoods (item) {
       this.MessageBox.confirm('确定执行此操作?').then(action => {
-        this.removeOrderCart(item.goodsId)
+        this.removeOrderCart(item.rowId)
       }).catch(data => {
         console.log(2)
       })

@@ -36,13 +36,8 @@
                     </ul>
                     <div class='order-list-content-item-footer'>
                         <div class='total-price'>
-                            <span v-if='item.orderStatus == 0'>应付：</span>
-                            <span v-if='item.afterSalesFlag == 1'>退款金额：</span>
-                            <span v-if='item.afterSalesFlag == 1 || item.orderStatus == 0' class='goods-price'><strong style='font-size:12px'>￥</strong>{{item.totalPrice}}</span>
                         </div>
                         <div class='operation-btn'>
-                            <mt-button type="default" @click.native='cancelTheOrder(item)' class='operation-btn-default' v-if='item.orderStatus == 0' size='small'>取消</mt-button>
-                            <mt-button type="default" @click.native='payTheOrder(item)' class='operation-btn-full-color' v-if='item.orderStatus == 0' size='small'>付款</mt-button>
                             <mt-button type="default" @click.native='confirmTheOrder(item)' class='operation-btn-outline-color' v-if='item.orderStatus == 1' size='small'>确认收货</mt-button>
                             <mt-button type="default" @click.native='checkTheOrderLogistics(item)' class='operation-btn-default' v-if='item.orderStatus == 2' size='small'>查看物流</mt-button>
                             <mt-button type="default" @click.native='buyTheOrderAgain(item)' class='operation-btn-default' v-if='item.orderStatus == 3 || item.orderStatus == 4' size='small'>再次购买</mt-button>
@@ -65,6 +60,41 @@ export default {
     return {}
   },
   methods: {
+    // 1、通过订单表ID获取订单详情
+    async getOrderDetailById (orderId) {
+      let param = {
+        rowId: orderId
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.getOrderDetailById(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        this.orderDetail = result
+        console.log(this.orderDetail)
+      }
+    },
+    // 查看订单物流
+    checkTheOrderLogistics (item) {
+      console.log('查看订单物流')
+      this.$router.push({name: 'LogisticsPage', params: {goodsId: item.rowId}})
+    },
+    // 再次购买
+    buyTheOrderAgain () {
+      console.log('再次购买')
+    },
+    // 评价此单
+    evaluateTheOrder (item) {
+      console.log('评价此单')
+      this.$router.push({name: 'EvaluateGoods', params: {goodsId: item.rowId}})
+    },
+    // 退货售后
+    afterSaleTheOrder (item) {
+      console.log('退货售后')
+      this.$router.push({name: 'ApplicetionForMoney', params: {goodsId: item.rowId}})
+    },
     toHome () {
       this.$router.push({name: 'Home'})
     }

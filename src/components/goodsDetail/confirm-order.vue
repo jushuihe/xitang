@@ -11,11 +11,11 @@
             <div class='choiced-address-img'></div>
             <div class='choiced-address-msg'>
                 <h2>收件人：
-                    <span>吕小布</span>
-                    <span style='float:right;margin-right:10px'>18677777777</span>
+                    <span>{{hasChoiceDeliveryAddressMsg.contact}}</span>
+                    <span style='float:right;margin-right:10px'>{{hasChoiceDeliveryAddressMsg.phone}}</span>
                 </h2>
                 <p>收货地址：
-                    <span>湖北省武汉市洪山区光谷一路佛祖岭湖口一路湖口社区13栋2209号</span>
+                    <span>{{hasChoiceDeliveryAddressMsg.desc}}</span>
                 </p>
             </div>
             <div class='choiced-address-footer'></div>
@@ -73,10 +73,14 @@ export default {
   name: 'confirmOrder',
   data () {
     return {
-      orderRemark: ''
+      orderRemark: '',
+      clerkId: null,
+      //  用户的收货地址列表
+      addressList: []
     }
   },
   created () {
+    this.getAddrList()
   },
   methods: {
     // 1、提交订单的接口
@@ -85,8 +89,12 @@ export default {
         orderRemark: this.orderRemark,
         shopId,
         rowId: '',
-        addrId: this.addressId,
-        details: details.filter(item => item.goodsId)
+        addrId: this.hasChoiceDeliveryAddressMsg.addrId,
+        details: details.filter(item => item.goodsId),
+        userOpenId: this.openId,
+        isOnline: this.isOnline,
+        // 店员ID
+        clerkId: this.clerkId
       }
       this.Indicator.open()
       let result = await this.goodsAPI.saveOrderById(param)
@@ -98,9 +106,23 @@ export default {
         return result
       }
     },
+    // 2、获取到我的收货地址列表
+    async getAddrList () {
+      let param = {}
+      this.Indicator.open()
+      let result = await this.userAPI.getAddrList(param)
+      result = this.show.dealResult1(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        this.addressList = result.list
+      }
+    },
     goBack () {
       this.$router.go(-1)
     },
+    // 提交订单
     submitTheOrder () {
       //  因为是分店铺多次提交，所以会返回多个订单编号，现在把多个订单编号放在一个数组里面保存
       let orderIdArr = []
@@ -111,7 +133,6 @@ export default {
             orderIdArr.push(data)
             // 如果订单都已经提交
             if (orderIdArr.length === this.allGoodsList.filter(item1 => item1.shopId).length) {
-              console.log(orderIdArr)
               this.$router.push({name: 'PayOrder', params: { 'orderId': orderIdArr.join() }})
             }
           })
@@ -120,6 +141,7 @@ export default {
     },
     // 跳转到收货地址的页面
     goToTheAddressPage () {
+      this.str.writeS('isChoiceDeliveryAddress', true)
       this.$router.push({name: 'ShippingAddress'})
     }
   },
@@ -144,6 +166,27 @@ export default {
         }
       })
       return totalPrice.toFixed(2)
+    },
+    isOnline () {
+      return this.allGoodsList[0].isOnline
+    },
+    openId () {
+      return this.str.readS('openId')
+    },
+    hasChoiceDeliveryAddressId () {
+      return this.str.readS('hasChoiceDeliveryAddressId')
+    },
+    hasChoiceDeliveryAddressMsg () {
+      if (this.addressList.length > 0) {
+        if (!this.hasChoiceDeliveryAddressId) {
+          return this.addressList.filter(item => item.isDefault === 0)[0]
+        } else {
+          // 如果先选择了收货地址，就填选中的地址
+          return this.addressList.filter(item => item.addrId === this.hasChoiceDeliveryAddressId)[0]
+        }
+      } else {
+        return {}
+      }
     }
   }
 }
@@ -226,7 +269,7 @@ export default {
                         >h2{
                             font-size:16px;
                             color:#4a4a4a;
-                            line-height 3rem;
+                            line-height 1.8rem;
                         }
                         >p{
                             font-size:12px;

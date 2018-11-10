@@ -5,7 +5,7 @@
           <a @click='goBack' slot="left">
             <img class='img-item' src="./../../../assets/img/back.png" alt="">
           </a>
-          <mt-button type="default" v-if='!hasNoAddress' slot='right' @click.native='editorTheAddressList'  size="small" class='go-to-home'>编辑</mt-button>
+          <mt-button type="default" v-if='!hasNoAddress' slot='right' @click.native='editorTheAddressList'  size="small" class='go-to-home'>{{isEditorTheAddressTitle}}</mt-button>
       </mt-header>
       <div class='main-content'>
         <!-- 如果没有地址 -->
@@ -21,7 +21,7 @@
           <mt-cell
             title="添加新地址"
             is-link
-            to='/AddNewAddress'
+            to='/AddNewAddress/0'
             class='user-defined-mt-cell'>
           </mt-cell>
           <div class='gray-content'></div>
@@ -29,11 +29,11 @@
             <li v-for='item in addressList' :key='item.addressId'>
               <transition name='selected'>
                 <div v-if='isEditorTheAddress' @click='choicedTheAddress(item)' class='selected-img'>
-                  <img v-if='choicedAddressIndex === item' class='img-item' src="./../../../assets/img/selected.png" alt="">
-                  <img v-if='choicedAddressIndex !== item' class='img-item' src="./../../../assets/img/unselected.png" alt="">
+                  <img v-if='choicedAddressIndex === item.addrId' class='img-item' src="./../../../assets/img/selected.png" alt="">
+                  <img v-if='choicedAddressIndex !== item.addrId' class='img-item' src="./../../../assets/img/unselected.png" alt="">
                 </div>
               </transition>
-              <div class='address-list-msg' @click='choicedTheAddressForOrder'>
+              <div class='address-list-msg' @click='choicedTheAddressForOrder(item)'>
                 <h3>{{item.contact}}
                   <span v-if='item.isDefault == 0' class='default-address'>(默认)</span>
                   <span style='float:right;font-size:14px;'>{{item.phone}}</span>
@@ -87,38 +87,74 @@ export default {
         this.addressList = result.list
       }
     },
+    // 2、地址信息删除
+    async deleteTheAddress1 (addrId) {
+      let param = {
+        addrId
+      }
+      this.Indicator.open()
+      let result = await this.userAPI.deleteTheAddress(param)
+      result = this.show.dealResult1(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        this.isEditorTheAddress = false
+        this.getAddrList()
+      }
+    },
+    // 3、设置默认地址
+    async setDefaultAddress (addrId) {
+      let param = {
+        addrId
+      }
+      this.Indicator.open()
+      let result = await this.userAPI.setDefaultAddress(param)
+      result = this.show.dealResult1(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        this.isEditorTheAddress = false
+        this.getAddrList()
+      }
+    },
     goBack () {
       this.$router.go(-1)
     },
     editorTheAddressList () {
-      console.log('编辑地址列表')
       this.isEditorTheAddress = !this.isEditorTheAddress
     },
     addMoreAddress () {
-      console.log('新增地址')
-      this.$router.push({name: 'AddNewAddress'})
+      this.$router.push({name: 'AddNewAddress', params: {'addrId': 0}})
     },
     deleteTheAddress (item) {
-      console.log(item)
+      this.deleteTheAddress1(item.addrId)
     },
     choicedTheAddress (item) {
-      this.choicedAddressIndex = item
+      this.choicedAddressIndex = item.addrId
     },
     // 编辑当前的地址
     editorTheAddress () {
-      console.log('编辑当前的地址')
-      this.$router.push({name: 'AddNewAddress', params: {'addressId': 1}})
+      this.$router.push({name: 'AddNewAddress', params: {'addrId': this.choicedAddressIndex}})
     },
     setToTheDefault () {
-      console.log('设置为默认')
+      this.setDefaultAddress(this.choicedAddressIndex)
     },
     // 选中当前的地址为当前的订单的收货地址
-    choicedTheAddressForOrder () {
-      console.log('选为地址 并且跳转到订单的页面')
-      this.$router.back()
+    choicedTheAddressForOrder (item) {
+      if (this.str.readS('isChoiceDeliveryAddress')) {
+        // 用完之后删除是否使用了选择了地址的选项
+        this.str.removeItemS('isChoiceDeliveryAddress')
+        this.str.writeS('hasChoiceDeliveryAddressId', item.addrId)
+        this.$router.back()
+      }
     }
   },
   computed: {
+    isEditorTheAddressTitle () {
+      return this.isEditorTheAddress ? '取消' : '编辑'
+    }
   }
 }
 </script>

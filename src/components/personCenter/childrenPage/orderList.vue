@@ -19,7 +19,7 @@
     <mt-tab-container :active.sync="selected" v-model='selected'>
         <mt-tab-container-item id="1" class='allOrderList'>
             <!-- 全部订单列表 -->
-            <all-order-list :orderList='orderList'></all-order-list>
+            <all-order-list :orderList='orderList' @refreshTheList='getOrderListByUserId'></all-order-list>
         </mt-tab-container-item>
         <mt-tab-container-item id="2">
             <!-- 代付款 -->
@@ -65,7 +65,7 @@ export default {
     // 1、获取当前用户的所有订单列表
     async getOrderListByUserId () {
       let param = {
-        orderNo: '1',
+        orderNo: '',
         beginTime: '',
         endTime: '',
         phone: '',
@@ -78,8 +78,7 @@ export default {
       if (result.err === 'warning') {
         this.Toast(result.message)
       } else {
-        this.orderList = result
-        console.log(this.orderList)
+        this.orderList = result.filter(item => item.orderStatus !== 9)
       }
     },
     toHome () {

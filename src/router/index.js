@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import BaseGroup from '@/components/BaseGroup'
 import Home from '@/components/home/home'
+import SearchResult from '@/components/home/search-result'
 import GroupBuy from '@/components/groupBuy/group-buy'
 import Classification from '@/components/classification/classification'
 import ClassificationGoodsList from '@/components/classification/classification-goodsList'
@@ -21,6 +22,7 @@ import GoodsDetail from '@/components/goodsDetail/goods-detail'
 import ConfirmOrder from '@/components/goodsDetail/confirm-order'
 import PayOrder from '@/components/goodsDetail/pay-order'
 import PaySuccess from '@/components/goodsDetail/pay-success'
+import GoodsShop from '@/components/goodsDetail/goods-shop'
 import OrderDetail from '@/components/personCenter/childrenPage/OrderDetail/order-detail'
 import LogisticsPage from '@/components/personCenter/childrenPage/logisticsPage/logistics-msg'
 import EvaluateGoods from '@/components/personCenter/childrenPage/evaluateGoods/evaluate-goods'
@@ -35,6 +37,8 @@ import PerformanceManagement from '@/components/personCenter/childrenPage/perfor
 import MessageCenter from '@/components/personCenter/childrenPage/messageCenter/message-center'
 import NotificationMessage from '@/components/personCenter/childrenPage/messageCenter/notification-message'
 import BoundPhone from '@/components/personCenter/childrenPage/boundPhone/bound-phone'
+import qrCodePage from '@/components/personCenter/childrenPage/qrCodePage/qr-code-page'
+import PromotionCode from '@/components/personCenter/childrenPage/promotionCodePage/promotion-code-page'
 
 Vue.use(Router)
 
@@ -98,7 +102,7 @@ export default new Router({
       component: ShippingAddress
     },
     {
-      path: '/AddNewAddress',
+      path: '/AddNewAddress/:addrId',
       name: 'AddNewAddress',
       component: AddNewAddress
     },
@@ -211,6 +215,26 @@ export default new Router({
       path: '/BoundPhone',
       name: 'BoundPhone',
       component: BoundPhone
+    },
+    {
+      path: '/qrCodePage',
+      name: 'qrCodePage',
+      component: qrCodePage
+    },
+    {
+      path: '/PromotionCode',
+      name: 'PromotionCode',
+      component: PromotionCode
+    },
+    {
+      path: '/GoodsShop/:shopId',
+      name: 'GoodsShop',
+      component: GoodsShop
+    },
+    {
+      path: '/SearchResult/:searchMsg',
+      name: 'SearchResult',
+      component: SearchResult
     }
   ]
 })

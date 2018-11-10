@@ -9,37 +9,38 @@
           <div class='content-msg'>
             <span class='item-title'>流水号：</span>
             <div class='item-msg'>
-                2018480932431
+                {{transactionMsg.tradeCode ? transactionMsg.tradeCode : '暂无'}}
             </div>
           </div>
           <div class='content-msg'>
             <span class='item-title'>类型：</span>
             <div class='item-msg'>
-                消费
+                {{transactionMsg.tradeMoney === 1 ? '充值' : '消费'}}
             </div>
           </div>
           <div class='content-msg'>
             <span class='item-title'>金额：</span>
-            <div class='item-msg price-item' :class='{"green": true}'>
-                -118.00
+            <div class='item-msg price-item' :class='{"green": false}'>
+                - {{transactionMsg.tradeMoney}}
             </div>
           </div>
           <div class='content-msg'>
             <span class='item-title'>时间：</span>
             <div class='item-msg'>
-                2018-05-29 15:11:10
+                {{transactionMsg.tradeTime}}
             </div>
           </div>
-          <div class='content-msg'>
+          <!-- 暂时去余额这一行 -->
+          <!-- <div class='content-msg'>
             <span class='item-title'>余额：</span>
             <div class='item-msg'>
-                3579.00元
+                0.00元
             </div>
-          </div>
+          </div> -->
           <div class='content-msg'>
             <span class='item-title'>订单号：</span>
             <div class='item-msg'>
-                3846545131256
+                {{transactionMsg.orderNo}}
             </div>
           </div>
       </div>
@@ -51,18 +52,38 @@ export default {
   name: 'TransactionDetail',
   data () {
     return {
+      // 当前交易的基本
+      transactionMsg: {}
     }
   },
   components: {},
   created () {
-    // this.getTheGoodsComment()
+    this.getTradeDetailByUser()
   },
   methods: {
+    // 1、交易列表
+    async getTradeDetailByUser () {
+      let param = {
+        orderId: this.orderId
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.getTradeDetailByUser(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        this.transactionMsg = result
+      }
+    },
     goBack () {
       this.$router.back()
     }
   },
   computed: {
+    orderId () {
+      return this.$route.params.transactionId
+    }
   }
 }
 </script>

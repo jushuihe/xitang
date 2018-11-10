@@ -35,5 +35,15 @@ export default {
   setDefaultAddress (param) {
     var url = 'web/address/defaultAddr'
     return HttpService.httpPost1(url, param)
+  },
+  // 8、查询用户信息
+  getShopUserInfo (param) {
+    var url = 'web/wechat/getShopUserInfo'
+    return HttpService.httpPost1(url, param)
+  },
+  // 9、查询商铺信息
+  getShopDetailInfo (param) {
+    var url = 'web/shop/getShopInfo'
+    return HttpService.httpPost1(url, param)
   }
 }

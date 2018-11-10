@@ -8,30 +8,20 @@
       </mt-header>
       <div class='main-content'>
         <!-- 头部导航栏 -->
-        <div class='header-nav' v-if='showMorePicContent'>
-          <ul>
-            <li><a :class='{"active":theChoicedNav==1}' href="#">商品</a></li>
-            <li><a :class='{"active":theChoicedNav==2}' href="#">详情</a></li>
-            <li><a :class='{"active":theChoicedNav==3}' href="#">评价</a></li>
-          </ul>
-        </div>
+        <transition name='navfade'>
+          <div class='header-nav' v-if='showMorePicContent'>
+            <ul>
+              <li><a :class='{"active":theChoicedNav==1}' @click.prevent='goScrollIntoView("goodsMsg", 1)'>商品</a></li>
+              <li><a :class='{"active":theChoicedNav==2}' @click.prevent='goScrollIntoView("goodsDetail", 2)'>详情</a></li>
+              <li><a :class='{"active":theChoicedNav==3}' @click.prevent='goScrollIntoView("goodsComment", 3)'>评价</a></li>
+            </ul>
+          </div>
+        </transition>
         <!-- 商品的轮播图部分 -->
-        <div class='swip-content' :class='{"showMorePicContent":showMorePicContent}'>
+        <div class='swip-content' id='goodsMsg' :class='{"showMorePicContent":showMorePicContent}'>
           <mt-swipe :show-indicators="false" style='height:100%' :auto="0" @change="handleChange">
-            <mt-swipe-item>
-              <img class='img-item' src="./../../assets/img/goods/goods1.jpg" alt="">
-            </mt-swipe-item>
-            <mt-swipe-item>
-              <img class='img-item' src="./../../assets/img/goods/goods2.jpg" alt="">
-            </mt-swipe-item>
-            <mt-swipe-item>
-              <img class='img-item' src="./../../assets/img/goods/goods3.jpg" alt="">
-            </mt-swipe-item>
-            <mt-swipe-item>
-              <img class='img-item' src="./../../assets/img/goods/goods4.jpg" alt="">
-            </mt-swipe-item>
-            <mt-swipe-item>
-              <img class='img-item' src="./../../assets/img/goods/goods5.jpg" alt="">
+            <mt-swipe-item v-for='item in carouselPicList' :key='item.rowId'>
+              <img class='img-item' :src='item.url'>
             </mt-swipe-item>
           </mt-swipe>
           <div class='swip-badge'>
@@ -49,7 +39,7 @@
             <div class='goods-price'>
               <span class='goods-price-practical'>
                 <!-- <strong>拼团价</strong> -->
-                ￥<strong style='font-size:24px;'>{{goodsDetail.specs&&goodsDetail.specs.length>0?goodsDetail.specs[0].price:''}}</strong>
+                ￥<strong style='font-size:24px;'>{{goodsDetail.specs && goodsDetail.specs.length>0?goodsDetail.specs[0].price:''}}</strong>
               </span>
               &nbsp;&nbsp;
               <span style="text-decoration:line-through;"><span>单买价</span>￥{{goodsDetail.specs&&goodsDetail.specs.length>0?goodsDetail.specs[0].priceShow:''}}</span>
@@ -59,7 +49,7 @@
           <div class='goods-evaluate'>
             <div class='goods-evaluate-proportion'>96.4%</div>
             <p>好评率</p>
-            <p>销量 97</p>
+            <p>销量 {{goodsDetail.sellAmount ? goodsDetail.sellAmount : 0}}</p>
           </div>
         </div>
         <div class='gray-content'></div>
@@ -78,19 +68,41 @@
             class='user-defined-mt-cell'
             value="支持自动成团，人数不足自动退款">
           </mt-cell>
-          <mt-cell
+          <!-- <mt-cell
             title="送至"
             is-link
             class='user-defined-mt-cell'
             @click.native='choicedTheShoppingAddress'
             value="请选择">
-          </mt-cell>
+          </mt-cell> -->
         </div>
+        <div class='gray-content'></div>
         <!-- 店铺的信息 -->
         <div class='shop-content'>
+          <div class='shop-image'>
+            <img :src='goodsDetail.icon ? goodsDetail.icon : defaultImg'>
+          </div>
+          <div class='shop-name'>
+            <h3>{{goodsDetail.shopName ? goodsDetail.shopName : ''}}</h3>
+            <mt-button @click.native='goToTheShopPage' type='primary' class='shop-btn' size='small'>店铺介绍</mt-button>
+          </div>
+          <div class='evaluationOfTheHotel'>
+            <div class='evaluationOfTheHotel-item'>店铺描述 4.8</div>
+            <div class='evaluationOfTheHotel-item'>店铺服务 4.8</div>
+            <div class='evaluationOfTheHotel-item'>物流服务 4.8</div>
+          </div>
         </div>
+        <div class='gray-content'></div>
         <!-- 商品详情和评论的部分 -->
-        <div v-if='showMorePicContent'></div>
+        <div v-if='showMorePicContent' class='part2-content'>
+          <div class='goods-detail' id='goodsDetail'>
+            <img class='goods-detail-img img-item' v-for='item in goodsDetailPhoto' :key='item.rowId' :src='item.url'>
+          </div>
+          <div class='gray-content'></div>
+          <div class='goods-comment' id='goodsComment'>
+            <h1>这是评论的部分</h1>
+          </div>
+        </div>
       </div>
       <!-- 固定在底部的 立即购买的部分 -->
       <div class='footer'>
@@ -101,11 +113,11 @@
             </li>
             <li @click='goToTheShopCard'>
               <img src="./../../assets/img/goods/shop-card.png" class='img-item'>
-              <mt-badge class='shop-card-num' size="small">30</mt-badge>
+              <mt-badge class='shop-card-num' v-if='goodsShopTotalNum > 0' size="small">{{goodsShopTotalNum}}</mt-badge>
             </li>
             <li @click='collectTheShopCard'>
-              <img v-if='false' src="./../../assets/img/goods/collect.png" class='img-item' alt="">
-              <img src="./../../assets/img/goods/already-collect.png" class='img-item' alt="">
+              <img v-if='!isCollect' src="./../../assets/img/goods/collect.png" class='img-item' alt="">
+              <img v-if='isCollect' src="./../../assets/img/goods/already-collect.png" class='img-item' alt="">
             </li>
           </ul>
         </div>
@@ -167,14 +179,22 @@ export default {
       // 保存商品的信息
       goodsDetail: {},
       goodsMsg: {},
-      theChoicedNav: 3,
+      theChoicedNav: 1,
       // 是否显示商品详情的部分
-      showMorePicContent: false
+      showMorePicContent: false,
+      defaultImg: 'http://xitang.shijiweika.com/img/1541676722400.jpg',
+      goodsShopTotalNum: 0,
+      // 保存商品评论的数据
+      evaluateList: [],
+      // 当前的用户是否绑定了手机号，默认为true
+      hasNoBoundPhone: true
     }
   },
   created () {
     this.getGoodsDetailByRowId(this.goodsId)
     this.getGoodsDetailById(this.goodsId)
+    this.clearThePageUrlMsg()
+    this.getShopUserInfo()
   },
   mounted () {
     this.addEventListen()
@@ -183,7 +203,8 @@ export default {
     // 1、通过商品ID获取商品信息
     async getGoodsDetailByRowId (rowId) {
       let param = {
-        rowId
+        rowId,
+        openId: this.openId
       }
       this.Indicator.open()
       let result = await this.goodsAPI.getGoodsMsgById(param)
@@ -240,6 +261,82 @@ export default {
         console.log(result)
       }
     },
+    // 4、收藏该商品
+    async collectOneGoods (goodsId) {
+      let param = {
+        goodsId
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.collectOneGoods(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        this.Toast('收藏成功')
+      }
+    },
+    // 5、取消收藏该商品
+    async deleteCollectGoods (goodsId) {
+      let param = {
+        goodsId
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.deleteCollectGoods(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        this.Toast('取消收藏')
+      }
+    },
+    // 6、获取当前用户的购物车列表
+    async getOrderCartList () {
+      let param = {}
+      this.Indicator.open()
+      let result = await this.goodsAPI.getOrderCartList(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        this.goodsShopTotalNum = result.length
+      }
+    },
+    // 7、获取当前商品的评价
+    async getEvaluateListWithPage () {
+      let param = {
+        goodsId: this.goodsId
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.getEvaluateListWithPage(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        // 获取当前商品的评价列表
+        console.log(result)
+        this.evaluateList = result.list
+      }
+    },
+    // 8、点击加入购物车的页面或者点击立即购买的页面如果用户没有绑定手机号直接跳转到绑定手机号的页面
+    async getShopUserInfo () {
+      let param = {}
+      this.Indicator.open()
+      let result = await this.userAPI.getShopUserInfo(param)
+      this.Indicator.close()
+      if (result.result === 1) {
+        // 如果用户还没有绑定手机号
+        // 先跳转到绑定手机号的页面
+        this.hasNoBoundPhone = true
+      } else if (result.result === 0) {
+        this.hasNoBoundPhone = false
+        // 如果已经绑定了手机号，需要查询购物车的信息
+        this.getOrderCartList()
+      }
+    },
     goBack () {
       this.$router.go(-1)
     },
@@ -257,7 +354,11 @@ export default {
     },
     // 收藏当前的商品
     collectTheShopCard () {
-      this.Toast('收藏成功')
+      if (this.isCollect) {
+        this.deleteCollectGoods(this.goodsId)
+      } else {
+        this.collectOneGoods(this.goodsId)
+      }
     },
     // 选择当前商品的规格以及数量
     choicedTheGoodsNum () {
@@ -280,6 +381,11 @@ export default {
     },
     // 立即购买
     buyImmediately () {
+      // 判断是否绑定手机号
+      if (this.hasNoBoundPhone) {
+        this.$router.push({name: 'BoundPhone'})
+        return
+      }
       // 提交订单的时候需要传入的商品属性包括
       // 1、订单Id rowId
       // 2、cartId 购物车Id
@@ -304,6 +410,7 @@ export default {
       let allGoodsList = [{
         shopName: this.goodsMsg.shopName,
         shopId: this.goodsMsg.shopId,
+        isOnline: this.goodsDetail.isOnline ? this.goodsDetail.isOnline : 0,
         carts: goodsList
       }]
       console.log(allGoodsList)
@@ -312,7 +419,19 @@ export default {
     },
     // 加入购物车
     addToShoppingCard () {
-      this.saveOrderCart()
+      // 判断是否绑定手机号
+      if (this.hasNoBoundPhone) {
+        this.$router.push({name: 'BoundPhone'})
+        return
+      }
+      // this.goodsDetail.isOnline === 0表示是线下商品，不能加入购物车只能直接付款结算
+      // this.goodsDetail.isOnline === 1表示是线上商品，能加入购物车，能直接付款结算
+      if (this.goodsDetail.isOnline) {
+        this.saveOrderCart()
+        this.getOrderCartList()
+      } else {
+        this.Toast('线下商品不能加入购物车')
+      }
     },
     // 手机监听滑动到底部的事件
     addEventListen () {
@@ -320,7 +439,7 @@ export default {
     },
     aa () {
       // 当前body 滚动的y轴的距离
-      // console.log(window.scrollY)
+      console.log(window.scrollY)
       // 当前框子的高度
       // console.log(window.innerHeight)
       // 当前body的总高度
@@ -328,6 +447,27 @@ export default {
       if (window.scrollY + window.innerHeight >= document.body.clientHeight) {
         console.log('滚动到了底部')
         this.showMorePicContent = true
+        if (this.evaluateList.length === 0) {
+          this.getEvaluateListWithPage()
+        }
+      } else if (window.scrollY <= 40) {
+        this.showMorePicContent = false
+      }
+    },
+    // 跳转到店铺的详情页面
+    goToTheShopPage () {
+      this.$router.push({name: 'GoodsShop', params: {'shopId': this.goodsMsg.shopId}})
+    },
+    // 模拟锚点的效果定位
+    goScrollIntoView (val, index) {
+      document.getElementById(val).scrollIntoView()
+      this.theChoicedNav = index
+    },
+    clearThePageUrlMsg () {
+      if (this.page_url && Object.keys(this.page_url).length > 0) {
+        if (this.page_url.type === 2) {
+          this.str.removeItemS('page_url')
+        }
       }
     }
   },
@@ -341,6 +481,58 @@ export default {
       } else {
         return {}
       }
+    },
+    goodsDetailPhoto () {
+      if (this.goodsDetail.photos) {
+        // 图片类型=>0:封面,1普通,2长图
+        return this.goodsDetail.photos.filter(item => item.photoType === 2)
+      } else {
+        return []
+      }
+    },
+    // 判断session中是否有goodsId的信息如果有就要清除掉
+    page_url () {
+      return this.str.readS('page_url')
+    },
+    // 商品的轮播图的图片
+    carouselPicList () {
+      if (this.goodsDetail.photos) {
+        return this.goodsDetail.photos.filter(item => item.photoType === 1)
+      } else {
+        return []
+      }
+    },
+    // 店铺的评分集合
+    shopScores () {
+      if (this.goodsDetail) {
+        return this.goodsDetail.shopScores
+      } else {
+        return []
+      }
+    },
+    // 商品的评分集合
+    goodsScores () {
+      if (this.goodsDetail) {
+        return this.goodsDetail.goodsScores
+      } else {
+        return []
+      }
+    },
+    // 获取当前用户是否对这个商品已经收藏
+    isCollect () {
+      if (this.goodsDetail) {
+        if (this.goodsDetail.isCollect === 0) {
+          return false
+        } else {
+          return true
+        }
+      } else {
+        return false
+      }
+    },
+    // 用户的openId
+    openId () {
+      return this.str.readS('openId')
     }
   }
 }
@@ -358,6 +550,7 @@ export default {
       position:fixed;
       top:40px;
       z-index 10;
+      opacity: 0.8;
       &>ul{
         width:180px;
         height:26px;
@@ -439,7 +632,7 @@ export default {
         box-sizing: border-box;
         h3{
           font-size:20px;
-          line-height 36px;
+          line-height 30px;
         }
         p{
           font-size:12px;
@@ -481,6 +674,57 @@ export default {
       text-align:left;
       .user-defined-mt-cell{
         padding-left:1.5rem;
+      }
+    }
+    .shop-content{
+      background: #fff;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+      .shop-image{
+        float:left;
+        width:3rem;
+        height:3rem;
+        margin-left:1.5rem;
+        border-radius:5px;
+        overflow:hidden;
+        >img{
+          width:100%;
+          height:100%;
+        }
+      }
+      .shop-name{
+        line-height: 3rem;
+        text-align: left;
+        font-size: 16px;
+        margin-left: 6rem;
+        position:relative;
+        .shop-btn{
+          position:absolute;
+          right:1.5rem;
+          border-radius:20px;
+          background:$base-color;
+          top:0.5rem;
+          line-height: 2rem;
+          height: 26px;
+        }
+      }
+      .evaluationOfTheHotel{
+        width: 84%;
+        margin-top: 1rem;
+        margin-left: 8%;
+        font-size: 14px;
+        justify-content: space-between;
+        display: flex;
+      }
+    }
+    .part2-content{
+      background:#fff;
+      .goods-detail{
+        .goods-de--detail-img{
+          width:100%;
+        }
+      }
+      .goods-comment{
       }
     }
   }
@@ -671,6 +915,29 @@ export default {
   }
   .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
     opacity: 0;
+  }
+  // 头部导航的位置的动画效果
+  .navfade-enter-active {
+    animation: fade-in 2s;
+  }
+  .navfade-enter-active {
+    animation: fade-out 2s;
+  }
+  @keyframes fade-in {
+    0% {
+      opacity:0;
+    }
+    100% {
+      opacity:0.8;
+    }
+  }
+  @keyframes fade-out {
+    0% {
+      opacity:0.8;
+    }
+    100% {
+      opacity:0;
+    }
   }
 }
 </style>

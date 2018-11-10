@@ -19,7 +19,7 @@
                   </div>
                   <div class='user-msg-performance'>
                       <p>当月业绩</p>
-                      <p>￥<strong style='font-size:16px;'>3242.00</strong></p>
+                      <p>￥<strong style='font-size:16px;'>{{achievementTotal}}</strong></p>
                   </div>
               </div>
               <p class='user-address'>
@@ -37,15 +37,15 @@
               </select>
           </div>
           <ul class='performance-list'>
-              <li v-for='item in 5' :key='item'>
+              <li v-for='item in achievementList' :key='item.tradeDate'>
                   <p class='item-part1'>
                       产品销售
-                      <span class='item-person'>张小盒-店员</span>
-                      <span class='item-time'>2018-05-29</span>
+                      <span class='item-person'>{{item.userName}}-店员</span>
+                      <span class='item-time'>{{item.tradeDate}}</span>
                   </p>
                   <p class='item-part2'>
-                      铜制大貔貅等，三个产品
-                      <strong class='item-price'>+118.00</strong>
+                      {{item.memo}}
+                      <strong class='item-price'>+{{item.achievement}}</strong>
                   </p>
               </li>
           </ul>
@@ -58,14 +58,36 @@ export default {
   name: 'PerformanceManagement',
   data () {
     return {
-      userType: 2
+      userType: 1,
+      // 当前店员的总业绩
+      achievementList: [],
+      // 当前店员的总业绩
+      achievementTotal: ''
     }
   },
   components: {},
   created () {
-    // this.getTheGoodsComment()
+    this.getAchievementListByUser()
   },
   methods: {
+    // 1、我的业绩列表
+    async getAchievementListByUser () {
+      let param = {
+        beginDate: '',
+        endDate: ''
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.getAchievementListByUser(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        console.log(result)
+        this.achievementList = result.detail
+        this.achievementTotal = result.total
+      }
+    },
     goBack () {
       this.$router.back()
     },

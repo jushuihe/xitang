@@ -23,7 +23,7 @@
         <section class='classify-item-content'>
           <dl class='classify-item-content-item' v-for='(item, index) in goodsList' :key='item.rowId' @click='toGoodDetail(item, index)'>
             <dt>
-              <img class='img-item' src="./../../assets/img/goods/3.png" alt="">
+              <img class='img-item' :src='getTheCoverPic(item.photos)' alt="">
             </dt>
             <dd>
               {{item.name}}
@@ -81,6 +81,27 @@ export default {
     // 跳转到商品详情页面
     toGoodDetail (item) {
       this.$router.push({name: 'goodsDetail', params: {goodsId: item.rowId}})
+    },
+    // 传入商品图片的集合然后获取到商品封面的图片地址
+    // 图片类型(0:封面,1普通,2长图)
+    getTheCoverPic (arr) {
+      if (arr && arr.length > 0) {
+        if (arr.filter(item => item.photoType === 0)[0].url) {
+          return arr.filter(item => item.photoType === 0)[0].url
+        } else {
+          return this.defaultImg
+        }
+      } else {
+        return this.defaultImg
+      }
+    },
+    // 获取到当前商品的第一个规格的价格
+    getTheGoodsFirstPrice (arr) {
+      if (arr && arr.length > 0) {
+        return arr[0].price
+      } else {
+        return '暂无'
+      }
     }
   },
   computed: {

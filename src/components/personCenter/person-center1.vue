@@ -18,21 +18,21 @@
           <div class='order-list-item' @click='toOrderList'>
             <div class='order-list-item-icon'>
               <img class='img-item' src="./../../assets/img/person/dingdan1.png" alt="">
-              <mt-badge class='order-list-item-icon-badge' size="small" color="#872330">1</mt-badge>
+              <mt-badge class='order-list-item-icon-badge' size="small" color="#872330">{{obligationOrderNum}}</mt-badge>
             </div>
             <p class='order-list-item-name'>待付款</p>
           </div>
           <div class='order-list-item' @click='toOrderList'>
             <div class='order-list-item-icon'>
               <img class='img-item' src="./../../assets/img/person/dingdan2.png" alt="">
-              <mt-badge class='order-list-item-icon-badge' size="small" color="#872330">2</mt-badge>
+              <mt-badge class='order-list-item-icon-badge' size="small" color="#872330">{{waitForReceivingOrderNum}}</mt-badge>
             </div>
             <p class='order-list-item-name'>待收货</p>
           </div>
           <div class='order-list-item' @click='toOrderList'>
             <div class='order-list-item-icon'>
               <img class='img-item' src="./../../assets/img/person/dingdan3.png" alt="">
-              <mt-badge class='order-list-item-icon-badge' size="small" color="#872330">32</mt-badge>
+              <mt-badge class='order-list-item-icon-badge' size="small" color="#872330">{{receivedOrderNum}}</mt-badge>
             </div>
             <p class='order-list-item-name'>已收货</p>
           </div>
@@ -55,13 +55,13 @@
       <div class='person-server'>
           <h3 class='person-server-title'>我的服务</h3>
           <div class='server-content'>
-              <dl>
+              <!-- <dl>
                   <dd>
                       <img class='img-item' src="./../../assets/img/person/server1.png" alt="">
                   </dd>
                   <dt>拼团订单</dt>
-              </dl>
-              <dl @click='toPerformanceManagementPage'>
+              </dl> -->
+              <dl @click='toPerformanceManagementPage' v-if='userType === 5'>
                   <dd>
                       <img class='img-item' src="./../../assets/img/person/server2.png" alt="">
                   </dd>
@@ -101,7 +101,6 @@
                   <dd>
                       <img class='img-item' src="./../../assets/img/person/server8.png" alt="">
                   </dd>
-                  <!-- <dt>礼包</dt> -->
                   <dt>消息中心</dt>
               </dl>
           </div>
@@ -115,11 +114,59 @@ export default {
   data () {
     return {
       selected: 'home',
-      value: ''
+      value: '',
+      userType: null,
+      userMsg: '',
+      boundPhone: '',
+      orderList: []
     }
   },
-  created () {},
+  created () {
+    // 获取当前用户的信息
+    this.getShopUserInfo()
+  },
   methods: {
+    // 1、获取当前用户的信息，获取当前用户的权限
+    async getShopUserInfo () {
+      let param = {}
+      this.Indicator.open()
+      let result = await this.userAPI.getShopUserInfo(param)
+      this.Indicator.close()
+      console.log(result)
+      if (result.result === 0) {
+        this.userMsg = result.data.user
+        // 获取当前用户的用户类型
+        // 用户类型（0普通用户；2西堂；3区域代理；4店长；5店员）
+        this.userType = this.userMsg.roleId
+        // 获取当前用户绑定的手机号如果绑定了就不能再去绑定手机号
+        this.boundPhone = this.userMsg.phone
+        // 获取当前用户的订单数量
+        this.getOrderListByUserId()
+      } else if (result.result === 1) {
+        // 如果用户还没有绑定手机号
+        // 先跳转到绑定手机号的页面
+        this.$router.push({name: 'BoundPhone'})
+      }
+    },
+    // 2、获取当前用户的所有订单列表
+    async getOrderListByUserId () {
+      let param = {
+        orderNo: '',
+        beginTime: '',
+        endTime: '',
+        phone: '',
+        orderStatus: null
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.getOrderListByUserId(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        this.orderList = result.filter(item => item.orderStatus !== 9)
+      }
+    },
     toOrderList () {
       this.$router.push('/orderList')
     },
@@ -139,14 +186,22 @@ export default {
       this.$router.push('/TransactionDetail')
     },
     toContactServerPage () {
-      this.$router.push('/ContactServer')
+      this.Toast({
+        message: '该功能暂未开通',
+        position: 'bottom'
+      })
+      // this.$router.push('/ContactServer')
     },
     // 跳转到我的业绩的页面
     toPerformanceManagementPage () {
       this.$router.push('/PerformanceManagement')
     },
     toMessageCenterPage () {
-      this.$router.push('/MessageCenter')
+      this.Toast({
+        message: '该功能暂未开通',
+        position: 'bottom'
+      })
+      // this.$router.push('/MessageCenter')
     }
   },
   watch: {},
@@ -155,10 +210,22 @@ export default {
       return this.str.readS('openId')
     },
     wechatName () {
-      return this.str.readS('wechatName')
+      return decodeURI(this.str.readS('wechatName'))
     },
     wechatHeadImgUrl () {
       return this.str.readS('wechatHeadImgUrl')
+    },
+    // 当前待付款的订单数
+    obligationOrderNum () {
+      return this.orderList.filter(item => item.orderStatus === 0).length
+    },
+    // 当前待收货的订单数
+    waitForReceivingOrderNum () {
+      return this.orderList.filter(item => item.orderStatus === 1 || item.orderStatus === 2).length
+    },
+    // 当前已收货的订单数
+    receivedOrderNum () {
+      return this.orderList.filter(item => item.orderStatus === 3).length
     }
   }
 }
@@ -191,7 +258,6 @@ export default {
         }
       }
       .user-name{
-        margin-left: 15px;
         font-size: 18px;
         line-height: 30px;
         font-weight 600
@@ -300,7 +366,7 @@ export default {
     .server-content{
         display:flex;
         flex-wrap:wrap;
-        justify-content:space-between;
+        // justify-content:space-between;
         >dl{
             width:25%;
             padding-top:1.5rem;

@@ -9,14 +9,14 @@
         <!-- 顶部的商品信息 部分 -->
         <div class='transaction-msg'>
           <ul class='transaction-msg-list'>
-            <li v-for='item in 5' :key='item' @click='toTheTransactionItemDetail(item)'>
-              <span class='item-title'>在线支付</span>
+            <li v-for='item in tradeList' :key='item.orderId' @click='toTheTransactionItemDetail(item)'>
+              <span class='item-title'>{{item.payMethod === 1 ? '微信支付' : (item.payMethod === 0 ? '余额支付' : '支付宝支付')}}</span>
               <div class='item-content'>
                 <p class='item-content-time'>
-                  2018-05-29
+                  {{item.tradeDate}}
                 </p>
                 <p class='item-content-price' :class='{"green":false}'>
-                  +300.00
+                  -{{item.payMoney}}
                 </p>
               </div>
             </li>
@@ -31,19 +31,36 @@ export default {
   name: 'TransactionDetail',
   data () {
     return {
+      tradeList: []
     }
   },
   components: {},
   created () {
-    // this.getTheGoodsComment()
+    this.getTradeListByUser()
   },
   methods: {
+    // 1、交易列表
+    async getTradeListByUser () {
+      let param = {
+        beginDate: '',
+        endDate: ''
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.getTradeListByUser(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        console.log(result)
+        this.tradeList = result.list
+      }
+    },
     goBack () {
       this.$router.back()
     },
     toTheTransactionItemDetail (item) {
-      console.log()
-      this.$router.push({name: 'TransactionItemDetail', params: {'transactionId': item}})
+      this.$router.push({name: 'TransactionItemDetail', params: {'transactionId': item.orderId}})
     }
   },
   computed: {

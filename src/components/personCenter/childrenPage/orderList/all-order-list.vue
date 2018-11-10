@@ -18,18 +18,18 @@
                         <strong class='order-type' v-if='item.payFlag === 1'>已付款</strong>
                     </h4>
                     <ul class='order-list-content-item-content'>
-                        <li class='goods-item' v-for='item1 in 4' :key='item1'>
+                        <li class='goods-item' v-for='item1 in item.details' :key='item1'>
                             <div class='goods-item-img'>
-                                <img class='img-item' src="./../../../../assets/img/goods/4.png" alt="">
+                                <img class='img-item' :src="item1.picUrl">
                             </div>
                             <div class='goods-item-msg'>
                                 <h4 class='goods-item-msg-name'>
-                                    文玩铜锈貔貅摆件
-                                    <span class='goods-price'><strong style='font-size:12px;'>￥</strong>59</span>
+                                    {{item1.goodsName}}
+                                    <span class='goods-price'><strong style='font-size:12px;'>￥</strong>{{item1.price}}</span>
                                 </h4>
                                 <div class='guige'>
-                                    规格：铜制小貔貅
-                                    <span class='num'>x1</span>
+                                    规格：{{item1.specName}}
+                                    <span class='num'>x{{item1.orderNumber}}</span>
                                 </div>
                             </div>
                         </li>
@@ -93,7 +93,7 @@ export default {
       if (result.err === 'warning') {
         this.Toast(result.message)
       } else {
-        console.log(result)
+        this.$emit('refreshTheList')
       }
     },
     // 3、确认收货的接口
@@ -108,7 +108,7 @@ export default {
       if (result.err === 'warning') {
         this.Toast(result.message)
       } else {
-        console.log(result)
+        this.$emit('refreshTheList')
       }
     },
     // 取消订单
@@ -126,7 +126,6 @@ export default {
     },
     // 确认收货
     confirmTheOrder (item) {
-      console.log('确认收货')
       this.deliveryCheckOrderById(item.rowId)
     },
     // 再次购买

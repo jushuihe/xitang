@@ -9,7 +9,7 @@
           <div class='input-content'>
               <label for="phoneInput">手机号</label>
               <div>
-                <input id='phoneInput' v-model='phoneNum' type="text" placeholder="请输入手机号">
+                <input id='phoneInput' v-model='phoneNum'  type="text" placeholder="请输入手机号">
               </div>
           </div>
           <div class='input-content'>
@@ -17,7 +17,8 @@
               <div>
                 <input type="text" id='securityCodeInput' v-model='securityCodeNum' class='securityCodeInput' placeholder="请输入验证码">
               </div>
-              <mt-button @click.native='sendTheSecurityCode' type='default' class='send-btn' size='small'>发送验证码</mt-button>
+              <mt-button @click.native='sendTheSecurityCode' v-if='showSendCodeBtn' type='default' class='send-btn' size='small'>发送验证码</mt-button>
+              <mt-button disabled v-if='!showSendCodeBtn' type='default' class='send-btn' size='small'>等待中({{intervalTime}}S)</mt-button>
           </div>
           <div class='footer-btn-content'>
               <mt-button @click.native='boundThePhone' type='primary' class='footer-btn' size='large'>绑定手机号</mt-button>
@@ -34,7 +35,9 @@ export default {
       phoneNum: '',
       securityCodeNum: '',
       saveCode: '',
-      savePhoneNum: ''
+      savePhoneNum: '',
+      intervalTime: 10,
+      showSendCodeBtn: true
     }
   },
   components: {},
@@ -47,12 +50,18 @@ export default {
         phone: this.phoneNum,
         type: 0
       }
+      if (this.phoneNum.length !== 11) {
+        this.Toast('电话号码不正确')
+        return
+      }
       this.Indicator.open()
       let result = await this.goodsAPI.smsGetCode(param)
       this.Indicator.close()
       if (result.status === 0) {
-        this.saveCode = this.result.code
+        this.saveCode = result.code
         this.savePhoneNum = this.phoneNum
+        this.showSendCodeBtn = false
+        this.reduceTheIntervalTime()
       } else {
         this.Toast(result.msg)
       }
@@ -65,18 +74,34 @@ export default {
       }
       this.Indicator.open()
       let result = await this.userAPI.wechatBindUser(param)
-      result = this.show.dealResult(result, this)
+      result = this.show.dealResult1(result, this)
       this.Indicator.close()
       if (result.err === 'warning') {
         this.Toast(result.message)
       } else {
         this.Toast('绑定成功')
+        let t = Date.now()
+        this.sleep(t, 1000)
         this.goBack()
       }
+    },
+    // 3、每隔一秒减少等待时间
+    reduceTheIntervalTime () {
+      var that = this
+      let timer = setTimeout(function fn (that) {
+        if (that.intervalTime > 1) {
+          that.intervalTime--
+          setTimeout(fn, 1000, that)
+        } else {
+          that.showSendCodeBtn = true
+          clearTimeout(timer)
+        }
+      }, 1000, that)
     },
     goBack () {
       this.$router.back()
     },
+    // 发送验证码
     sendTheSecurityCode () {
       this.smsGetCode()
     },
@@ -88,6 +113,10 @@ export default {
       } else {
         this.Toast('输入的验证码不一致')
       }
+    },
+    // 休眠函数
+    sleep (t, d) {
+      while (Date.now() - t <= d);
     }
   },
   computed: {

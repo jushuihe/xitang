@@ -6,7 +6,7 @@
         </div>
         <div class='search-content'>
             <img class='search-content-img' src='../../assets/img/search.png' alt=''>
-            <input type="text" class='search-content-input' placeholder="搜索...">
+            <input type="text" v-model='searchMsg' class='search-content-input' @keyup.enter='searchTheGoodsList' placeholder="搜索...">
         </div>
         <div class='img-content'>
             <img src="../../assets/img/zixun.png" class='img-item' alt="">
@@ -15,9 +15,6 @@
     <!-- 左边的分类导航部分 一级分类 -->
     <aside class='left-nav'>
       <ul class='left-nav-ul'>
-        <li :class='{"active":nowActiveNav === "default"}'  @click='changeTheActiveNav(0)'>
-          <span>推荐分类</span>
-        </li>
         <li v-for='(item, index) in catalogList' :class='{"active":nowActiveNav == item.rowId}'  @click='changeTheActiveNav(item, index)' :key='item.rowId'>
           <span>{{item.name}}</span>
         </li>
@@ -31,6 +28,9 @@
       <div class='classify-item'>
         <ul>
           <li v-for='item in catalogListSecond'  @click='changeTheSecondLevel(item)' :key='item.rowId'>
+            <div class='item-img'>
+              <img class='img-item' :src='item.picUrl?item.picUrl:defaultPic'>
+            </div>
             <span>{{item.name}}</span>
           </li>
         </ul>
@@ -44,13 +44,16 @@ export default {
   name: 'classification',
   data () {
     return {
-      nowActiveNav: 'default',
+      nowActiveNav: '',
       showSecondLevelNav: false,
       // 第一级的目录导航
       catalogList: [],
       // 第二级的目录列表
       catalogListSecond: [],
-      catalogListTree: []
+      catalogListTree: [],
+      defaultPic: 'http://xitang.shijiweika.com/img/1541672430696.jpg',
+      // 搜索条件
+      searchMsg: ''
     }
   },
   created () {
@@ -74,6 +77,7 @@ export default {
       } else {
         // 成功获取到了参数
         this.catalogList = result
+        this.nowActiveNav = this.catalogList[0].rowId
         if (this.catalogList.length === 0) {
           this.Toast('当前的目录的数据为空')
         } else {
@@ -117,6 +121,10 @@ export default {
     // 跳转到分类搜索的页面
     changeTheSecondLevel (item, index) {
       this.$router.push({name: 'ClassificationGoodsList', params: {'classificationId': item.rowId}})
+    },
+    // 搜索商品列表
+    searchTheGoodsList () {
+      console.log('sousu')
     }
   }
 }
@@ -267,11 +275,22 @@ export default {
       &>ul{
         padding:1rem;
         text-align:left;
+        display flex
+        flex-wrap: wrap;
         li{
+          width: 35%;
+          margin-top: 2vh;
+          margin-left: 1%;
+          margin-right: 1%;
           display: inline-block;
           font-size: 15px;
           line-height: 30px;
           padding: 0 1rem;
+          text-align: center;
+          .item-img{
+            width:100%;
+            height:9rem
+          }
         }
       }
     }

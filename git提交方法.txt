@@ -14,3 +14,6 @@
 	139.199.97.170
 	ubuntu xitang@123
 	根目录在 /home/ubuntu/app/mobile
+
+
+// 西塘微信商城的 appId => 'wx57127d6c1d11d825'

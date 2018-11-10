@@ -11,7 +11,7 @@
         <div class='address-msg'>
           <div class='address-msg-item'>
             <span class='item-title'>收货人姓名</span>
-            <input class='item-input' placeholder="请输入收货人姓名" type="text">
+            <input class='item-input' v-model='contact' placeholder="请输入收货人姓名" type="text">
           </div>
           <div class='address-msg-item' style='border-color:transparent'>
             <span class='item-title'>手机号码</span>
@@ -19,7 +19,7 @@
           </div>
           <div class='address-msg-item'>
             <span class='item-title'></span>
-            <input class='item-input' placeholder="请输入收货人手机号" type="text">
+            <input class='item-input' v-model='phone' placeholder="请输入收货人手机号" type="text">
           </div>
           <mt-cell
             title="所在地区"
@@ -30,7 +30,7 @@
           </mt-cell>
           <div class='address-msg-item'>
             <span class='item-title'>详细地址</span>
-            <input class='item-input' placeholder="请输入街道地址" type="text">
+            <input class='item-input' v-model='custom' placeholder="请输入街道地址" type="text">
           </div>
         </div>
         <div class='gray-content'></div>
@@ -85,41 +85,202 @@ export default {
           className: 'slot4'
         }, {
           flex: 1,
-          values: ['东城区', '西城区', '崇文区', '宣武区', '朝阳区', '丰台区', '石景山区', '海淀区', '门头沟区', '房山区', '通州区', '顺义区', '昌平区', '大兴区', '平谷区', '怀柔区', '密云县', '延庆县', '其他'],
+          values: ['东城区'],
           className: 'slot5',
           textAlign: 'center'
         }
       ],
       addressProvince: '北京',
-      addressCity: '北京',
+      addressProvinceCode: '',
+      addressCity: '北京市',
+      addressCityCode: '',
       addressCounty: '东城区',
-      choicedToDefault: false
+      addressCountyCode: '',
+      choicedToDefault: false,
+      provincialLevelList: [],
+      // 保存上一级的城市的数据
+      oldCityData: [],
+      // 保存当前联级地址的第二级的所有的内容
+      secondChoicedArr: [],
+      // 填写的收货地址的信息
+      contact: '',
+      phone: '',
+      custom: ''
     }
   },
   created () {
-    console.log(cityData)
+    this.getLocationAddress(0)
+    if (Number(this.addrId) !== 0) {
+      this.getAddrInfo()
+    }
   },
   methods: {
+    // 1、新增或者修改收货地址
+    async createOrUpdateAddress () {
+      if (!this.contact || !this.phone || !this.custom) {
+        this.Toast('请将收货信息填写完整')
+        return
+      }
+      if (this.phone.length !== 11) {
+        this.Toast('填写的电话号码不正确')
+        return
+      }
+      let param = {
+        addrId: this.addrId,
+        contact: this.contact,
+        phone: this.phone,
+        isDefault: this.choicedToDefault ? 0 : 1,
+        custom: this.custom,
+        addrInfo: JSON.stringify([
+          {
+            name: this.addressProvince,
+            code: this.addressProvinceCode,
+            level: 0
+          },
+          {
+            name: this.addressCity,
+            code: this.addressCityCode,
+            level: 1
+          },
+          {
+            name: this.addressCounty,
+            code: this.addressCountyCode,
+            level: 2
+          }
+        ])
+      }
+      this.Indicator.open()
+      let result = await this.userAPI.createOrUpdateAddress(param)
+      result = this.show.dealResult1(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        console.log(result)
+        this.Toast('新增地址成功')
+        this.$router.push({name: 'ShippingAddress'})
+      }
+    },
+    // 2、获取层级的地区数据
+    async getLocationAddress (code) {
+      let param = {
+        code
+      }
+      // this.Indicator.open()
+      let result = await this.userAPI.getLocationAddress(param)
+      result = this.show.dealResult1(result, this)
+      // this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        if (code === 0) {
+          this.provincialLevelList = result.list
+          let obj = {
+            flex: 1,
+            values: this.provincialLevelList.map(item => item.name),
+            className: 'slot1',
+            textAlign: 'center'
+          }
+          this.addressSlots.shift()
+          this.addressSlots.unshift(obj)
+          this.addressProvinceCode = this.provincialLevelList[0].code
+          this.getLocationAddress(this.provincialLevelList[0].code).then(data => {
+            this.addressCityCode = data[0].code
+            this.getLocationAddress(data[0].code).then(data1 => {
+              this.addressCountyCode = data1[0].code
+              let obj = {
+                flex: 1,
+                values: data1.map(item => item.name),
+                className: 'slot5',
+                textAlign: 'center'
+              }
+              this.addressSlots.pop()
+              this.addressSlots.push(obj)
+            })
+          })
+        } else {
+          return result.list
+        }
+      }
+    },
+    // 3、查询当前地址的详细信息
+    async getAddrInfo () {
+      let param = {
+        type: 0,
+        addrId: this.addrId
+      }
+      this.Indicator.open()
+      let result = await this.userAPI.getAddrInfo(param)
+      result = this.show.dealResult1(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        this.address = result.address
+        this.contact = this.address.contact
+        this.phone = this.address.phone
+        this.custom = this.address.custom
+        this.addressProvince = this.address.addrInfo.filter(item => item.level === 0)[0].name
+        this.addressProvinceCode = this.address.addrInfo.filter(item => item.level === 0)[0].code
+        this.addressCity = this.address.addrInfo.filter(item => item.level === 1)[0].name
+        this.addressCityCode = this.address.addrInfo.filter(item => item.level === 1)[0].code
+        this.addressCounty = this.address.addrInfo.filter(item => item.level === 2)[0].name
+        this.addressCountyCode = this.address.addrInfo.filter(item => item.level === 2)[0].code
+        this.choicedToDefault = (this.address.isDefault === 1) ? null : true
+      }
+    },
     goBack () {
       this.$router.back()
     },
+    // 选择的城市发生改变的时候执行的函数
     onAddressChange (picker, values) {
-      let obj = cityData[values[0]]
-      picker.setSlotValues(1, Object.keys(obj))
-      picker.setSlotValues(2, obj[values[1]])
+      let choicedCode
+      if (values[0] !== this.oldCityData[0]) {
+        this.oldCityData = [...values]
+        if ((this.provincialLevelList.length > 0) && (this.provincialLevelList.filter(item => item.name === values[0]).length > 0)) {
+          choicedCode = this.provincialLevelList.filter(item => item.name === values[0])[0].code
+          this.addressProvinceCode = choicedCode
+        }
+        if (choicedCode) {
+          this.getLocationAddress(choicedCode).then(data => {
+            this.secondChoicedArr = data
+            picker.setSlotValues(1, data.map(item => item.name))
+            let secondChoicedCode = data[0].code
+            this.addressCityCode = secondChoicedCode
+            this.getLocationAddress(secondChoicedCode).then(data1 => {
+              this.addressCountyCode = data1[0].code
+              picker.setSlotValues(2, data1.map(item => item.name))
+            })
+          })
+        }
+      } else if (values[1] !== this.oldCityData[1]) {
+        this.oldCityData = [...values]
+        if ((this.secondChoicedArr.length > 0) && (this.secondChoicedArr.filter(item => item.name === values[1]).length > 0)) {
+          choicedCode = this.secondChoicedArr.filter(item => item.name === values[1])[0].code
+          this.addressCityCode = choicedCode
+        }
+        if (choicedCode) {
+          this.getLocationAddress(choicedCode).then(data1 => {
+            this.addressCountyCode = data1[0].code
+            picker.setSlotValues(2, data1.map(item => item.name))
+          })
+        }
+      }
       this.addressProvince = values[0]
       this.addressCity = values[1]
       this.addressCounty = values[2]
     },
     saveTheAddress () {
-      console.log('保存当前的地址')
-      this.$router.push({name: 'ShippingAddress'})
+      this.createOrUpdateAddress()
     },
     choicedTheAddressToDefault () {
       this.choicedToDefault = !this.choicedToDefault
     }
   },
   computed: {
+    addrId () {
+      return this.$route.params.addrId
+    }
   }
 }
 </script>

@@ -39,6 +39,13 @@ module.exports = {
           '^/sms/': '/sms/'
         },
       },
+      '/wxinfo': {
+        target: 'http://xitang.shijiweika.com',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/wxinfo/': '/wxinfo/'
+        },
+      },
     },
 
     // Various Dev Server settings

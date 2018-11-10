@@ -37,17 +37,11 @@
                     <div class='order-list-content-item-footer'>
                         <div class='total-price'>
                             <span v-if='item.orderStatus == 0'>应付：</span>
-                            <span v-if='item.afterSalesFlag == 1'>退款金额：</span>
                             <span v-if='item.afterSalesFlag == 1 || item.orderStatus == 0' class='goods-price'><strong style='font-size:12px'>￥</strong>{{item.totalPrice}}</span>
                         </div>
                         <div class='operation-btn'>
                             <mt-button type="default" @click.native='cancelTheOrder(item)' class='operation-btn-default' v-if='item.orderStatus == 0' size='small'>取消</mt-button>
                             <mt-button type="default" @click.native='payTheOrder(item)' class='operation-btn-full-color' v-if='item.orderStatus == 0' size='small'>付款</mt-button>
-                            <mt-button type="default" @click.native='confirmTheOrder(item)' class='operation-btn-outline-color' v-if='item.orderStatus == 1' size='small'>确认收货</mt-button>
-                            <mt-button type="default" @click.native='checkTheOrderLogistics(item)' class='operation-btn-default' v-if='item.orderStatus == 2' size='small'>查看物流</mt-button>
-                            <mt-button type="default" @click.native='buyTheOrderAgain(item)' class='operation-btn-default' v-if='item.orderStatus == 3 || item.orderStatus == 4' size='small'>再次购买</mt-button>
-                            <mt-button type="default" @click.native='evaluateTheOrder(item)' class='operation-btn-default' v-if='item.orderStatus == 3 || item.orderStatus == 4' size='small'>评价此单</mt-button>
-                            <mt-button type="default" @click.native='afterSaleTheOrder(item)' class='operation-btn-outline-color' v-if='item.orderStatus == 3 || item.orderStatus == 4' size='small'>退换/售后</mt-button>
                         </div>
                     </div>
                     <div class='gray-content'></div>
@@ -65,6 +59,29 @@ export default {
     return {}
   },
   methods: {
+    // 2、取消订单
+    async deleteOrderById (orderId) {
+      let param = {
+        rowId: Number(orderId)
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.deleteOrderById(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        this.$emit('refreshTheList')
+      }
+    },
+    // 取消订单
+    cancelTheOrder (item) {
+      this.deleteOrderById(item.rowId)
+    },
+    // 付款按钮
+    payTheOrder (item) {
+      this.$router.push({name: 'PayOrder', params: {orderId: item.rowId}})
+    },
     toHome () {
       this.$router.push({name: 'Home'})
     }

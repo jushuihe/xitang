@@ -4,6 +4,7 @@ import {
 } from './Config'
 import axios from 'axios'
 import router from './../router/index'
+import str from './StorageService'
 //  axios 配置
 axios.defaults.timeout = REQUEST_TIMEOUT
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8'
@@ -36,12 +37,13 @@ export default {
     if (body) {
       param = body
     }
+    let openId = str.readS('openId') ? str.readS('openId') : '54321'
     let obj = {
       url,
       method: 'POST',
       data: param,
       headers: {
-        'openId': '54321'
+        'openId': openId
       }
     }
     return axios(obj).then(res => {
@@ -49,7 +51,7 @@ export default {
     }).catch(err => {
       console.log(url + '请求错误')
       console.log(err)
-      //  后续在增加错误事件
+      // 后续在增加错误事件
       this.NetworkErr()
     })
   },
@@ -60,12 +62,13 @@ export default {
     if (body) {
       param = body
     }
+    let openId = str.readS('openId') ? str.readS('openId') : '54321'
     let obj = {
       url,
       method: 'POST',
-      param: param,
+      params: param,
       headers: {
-        'openId': '54321'
+        'openId': openId
       }
     }
     return axios(obj).then(res => {

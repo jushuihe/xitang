@@ -9,13 +9,13 @@
         <!-- 顶部的商品信息 部分 -->
         <div class='goods-msg'>
           <ul class='goods-msg-list'>
-            <li v-for='item in 5' :key='item'>
+            <li v-for='item in hasCollectedList' :key='item.rowId' @click='toTheGoodsDetail(item)'>
               <div class='goods-msg-img'>
-                <img class='img-item' src="./../../../../assets/img/goods/4.png" alt="">
+                <img class='img-item' :src=' item.picUrl ? item.picUrl : defaultImg' alt="">
               </div>
               <div class='goods-msg-msg'>
-                <h3>文玩铜锈貔貅摆件</h3>
-                <p>收藏时间：2018-09-18</p>
+                <h3>{{item.name}}</h3>
+                <p>收藏时间：{{item.updateTime}}</p>
               </div>
             </li>
           </ul>
@@ -29,13 +29,34 @@ export default {
   name: 'collectPage',
   data () {
     return {
+      allLoaded: false,
+      hasCollectedList: [],
+      list: [],
+      defaultImg: 'http://xitang.shijiweika.com/img/1541663983385.jpg'
     }
   },
   components: {},
   created () {
-    // this.getTheGoodsComment()
+    this.getUserCollectList()
   },
   methods: {
+    // 1、获取当前用户的收藏列表
+    async getUserCollectList () {
+      let param = {
+        pageNum: 1,
+        pageSize: 20
+      }
+      this.Indicator.open()
+      let result = await this.goodsAPI.getUserCollectList(param)
+      result = this.show.dealResult(result, this)
+      this.Indicator.close()
+      if (result.err === 'warning') {
+        this.Toast(result.message)
+      } else {
+        console.log(result)
+        this.hasCollectedList = result.list
+      }
+    },
     goBack () {
       this.$router.back()
     }
@@ -50,6 +71,7 @@ export default {
 .page {
   font-size: 1.2rem
   .main-content{
+    background:#fff;
     .goods-msg{
       background:#fff;
       .goods-msg-logistics{
@@ -80,11 +102,11 @@ export default {
             height:5rem;
           }
           .goods-msg-msg{
-            margin-left:9rem;
-            height:5rem;
+            margin-left:8rem;
+            min-height:5rem;
             text-align left;
             >h3{
-              line-height 30px;
+              line-height 22px;
               .goods-price{
                 float:right;
                 margin-right:1.5rem;

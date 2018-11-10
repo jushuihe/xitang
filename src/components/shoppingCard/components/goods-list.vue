@@ -116,12 +116,12 @@ $numbtn-color=#979797;
                 padding-left:13rem;
                 padding-right:1rem;
                 box-sizing border-box;
-                height: 6rem;
+                min-height: 6rem;
                 vertical-align top;
                 >h3{
                     color:$base-undertint-font-color;
                     font-size:16px;
-                    line-height 26px;
+                    line-height 22px;
                 }
                 >p{
                     color:$numbtn-color;
